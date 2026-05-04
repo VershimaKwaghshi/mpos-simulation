@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mobile Point of Service (mPOS)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .mpos-wrap {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .mpos-header {
+      background: #1B4F8C;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .mpos-header h2 {
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .mpos-header p {
+      font-size: 11px;
+      color: #B8D4F0;
+    }
+    .mpos-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .mpos-card h3 {
+      font-size: 13px;
+      color: #1B4F8C;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid #f0f4f8;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+    .mpos-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .mpos-row .label { color: #666; }
+    .mpos-row .value { font-weight: bold; color: #1B4F8C; }
+    .mpos-row .value.green { color: #4CAF50; }
+    .mpos-row .value.gold { color: #C9972B; }
+    .mpos-row .value.red { color: #e53935; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .badge-green { background: #e8f5e9; color: #4CAF50; }
+    .badge-gold { background: #fff8e1; color: #C9972B; }
+    .mpos-btn {
+      width: 100%;
+      padding: 14px;
+      background: #1B4F8C;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    .mpos-btn:hover { background: #C9972B; }
+    .mpos-btn-outline {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      color: #1B4F8C;
+      border: 2px solid #1B4F8C;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .mpos-screen { display: none; }
+    .mpos-screen.active { display: block; }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .flow-step .icon { font-size: 22px; }
+    .flow-step .text strong { display: block; color: #1B4F8C; }
+    .flow-step .text { color: #333; }
+    .progress-bar {
+      background: #e0e0e0;
+      border-radius: 20px;
+      height: 8px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #1B4F8C, #C9972B);
+    }
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 15px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+    .step-dot.active { background: #1B4F8C; }
+    .step-dot.done { background: #4CAF50; }
+    .agent-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .agent-card.selected {
+      border-color: #4CAF50;
+      background: #f1f8f1;
+    }
+    .agent-card .agent-name {
+      font-weight: bold;
+      font-size: 13px;
+      color: #1B4F8C;
+    }
+    .agent-card .agent-detail {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .ledger-table th {
+      background: #1B4F8C;
+      color: white;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 12px;
+    }
+    .ledger-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .market-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .agent-id { font-weight: bold; color: #1B4F8C; }
+    .liquidity-bar {
+      background: #e0e0e0;
+      border-radius: 10px;
+      height: 6px;
+      width: 80px;
+      overflow: hidden;
+      display: inline-block;
+    }
+    .liquidity-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: #4CAF50;
+    }
+    .mpos-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .mpos-select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+      background: white;
+    }
+    .amount-display {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1B4F8C;
+      text-align: center;
+      padding: 15px 0;
+    }
+    .big-icon {
+      font-size: 50px;
+      text-align: center;
+      margin: 15px 0;
+    }
+    .info-box-blue {
+      background: #e3f0fb;
+      border-left: 4px solid #1B4F8C;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1B4F8C;
+      margin-bottom: 12px;
+    }
+    .info-box-gold {
+      background: #fff8e1;
+      border-left: 4px solid #C9972B;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .info-box-green {
+      background: #f1f8f1;
+      border-left: 4px solid #4CAF50;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .center { text-align: center; }
+  </style>
+</head>
+<body>
+<div class="mpos-wrap">
+
+  <!-- STEP DOTS -->
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot active" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+    <div class="step-dot" id="dot4"></div>
+    <div class="step-dot" id="dot5"></div>
+    <div class="step-dot" id="dot6"></div>
+    <div class="step-dot" id="dot7"></div>
+    <div class="step-dot" id="dot8"></div>
+    <div class="step-dot" id="dot9"></div>
+  </div>
+
+  <!-- SCREEN 1: SENDER BANK -->
+  <div class="mpos-screen active" id="screen1">
+    <div class="mpos-header">
+      <h2>📱 Mobile Point of Service (mPOS)</h2>
+      <p>Stanbic IBTC Bank — Nigeria</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Initiate Transfer</h3>
+      <div class="mpos-row">
+        <span class="label">Sender Bank</span>
+        <span class="value">Stanbic IBTC 🇳🇬</span>
+      </div>
+      <select class="mpos-select">
+        <option>🇳🇬 Send from Nigeria (NGN)</option>
+      </select>
+      <select class="mpos-select">
+        <option>🇬🇧 Send to United Kingdom (GBP)</option>
+        <option>🇺🇸 Send to United States (USD)</option>
+      </select>
+      <input class="mpos-input" type="number" placeholder="Enter amount (NGN)" id="ngnInput" oninput="updateDisplay(this.value)"/>
+      <div class="amount-display" id="amountDisplay">NGN 0</div>
+      <input class="mpos-input" type="text" placeholder="Recipient Full Name"/>
+      <input class="mpos-input" type="text" placeholder="Recipient Account Number"/>
+      <input class="mpos-input" type="text" placeholder="Recipient Bank (UK)"/>
+    </div>
+    <div class="mpos-card">
+      <h3>Transfer Summary</h3>
+      <div class="mpos-row"><span class="label">Fee</span><span class="value gold">1.2%</span></div>
+      <div class="mpos-row"><span class="label">Rate</span><span class="value">1 GBP = 2,050 NGN</span></div>
+      <div class="mpos-row"><span class="label">Settlement</span><span class="value green">⚡ Near Instant — Under 1 Hour</span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(2)">Submit to mPOS Engine →</button>
+  </div>
+
+  <!-- SCREEN 2: mPOS ENGINE -->
+  <div class="mpos-screen" id="screen2">
+    <div class="mpos-header">
+      <h2>⚙️ Mobile Point of Service (mPOS)</h2>
+      <p>Core Engine — Request Received</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Request Received from Bank</h3>
+      <div class="flow-step">
+        <span class="icon">🏦</span>
+        <div class="text"><strong>Stanbic IBTC Nigeria</strong>Payment request received via API</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">🔐</span>
+        <div class="text"><strong>KYC & AML Check</strong>Sender identity verified ✓</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">📋</span>
+        <div class="text"><strong>Transaction Logged</strong>Ref: MPOS-2026-00847</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+      <div class="center" style="font-size:12px;color:#666;">Engine processing — Step 1 of 4</div>
+    </div>
+    <div class="mpos-card">
+      <h3>Request Details</h3>
+      <div class="mpos-row"><span class="label">Amount</span><span class="value">NGN 205,000</span></div>
+      <div class="mpos-row"><span class="label">Corridor</span><span class="value">Nigeria 🇳🇬 → UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-gold">Processing</span></span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(3)">Check Liquidity →</button>
+  </div>
+
+  <!-- SCREEN 3: SENDER AGENT -->
+  <div class="mpos-screen" id="screen3">
+    <div class="mpos-header">
+      <h2>🧑‍💼 Mobile Point of Service (mPOS)</h2>
+      <p>Sender Side Agent — Nigeria</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Agent Selection — Nigeria Side</h3>
+      <p style="font-size:12px;color:#666;margin-bottom:12px;">mPOS engine scans agents with sufficient NGN liquidity</p>
+      <div class="agent-card selected">
+        <div class="agent-name">✅ Agent NG-004 — Lagos</div>
+        <div class="agent-detail">NGN Liquidity: ₦48,500,000 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐⭐⭐ | Response: 0.3s</div>
+        <div class="agent-detail" style="color:#4CAF50;margin-top:4px;">Selected — best rate + liquidity</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-name">Agent NG-011 — Abuja</div>
+        <div class="agent-detail">NGN Liquidity: ₦12,200,000 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐⭐ | Response: 0.7s</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-name">Agent NG-019 — Port Harcourt</div>
+        <div class="agent-detail">NGN Liquidity: ₦8,900,000 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐ | Response: 1.1s</div>
+      </div>
+    </div>
+    <div class="mpos-card">
+      <h3>Sender Agent Action</h3>
+      <div class="mpos-row"><span class="label">Agent</span><span class="value">NG-004 Lagos</span></div>
+      <div class="mpos-row"><span class="label">NGN Debited</span><span class="value red">- ₦205,000</span></div>
+      <div class="mpos-row"><span class="label">Agent Balance</span><span class="value">₦48,295,000</span></div>
+      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Debited ✓</span></span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(4)">Route to UK Corridor →</button>
+  </div>
+
+  <!-- SCREEN 4: CORRIDOR ROUTING -->
+  <div class="mpos-screen" id="screen4">
+    <div class="mpos-header">
+      <h2>🌍 Mobile Point of Service (mPOS)</h2>
+      <p>Corridor Routing Engine</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Routing Decision</h3>
+      <div class="flow-step">
+        <span class="icon">🔍</span>
+        <div class="text"><strong>Corridor Scanned</strong>Nigeria 🇳🇬 ↔ UK 🇬🇧</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">💱</span>
+        <div class="text"><strong>FX Rate Applied</strong>1 GBP = 2,050 NGN (live rate)</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">💧</span>
+        <div class="text"><strong>UK Liquidity Confirmed</strong>GBP pool sufficient ✓</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">⚡</span>
+        <div class="text"><strong>Route Selected</strong>Direct — no intermediate hops</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div>
+      <div class="center" style="font-size:12px;color:#666;">Engine processing — Step 2 of 4</div>
+    </div>
+    <div class="mpos-card">
+      <h3>Routing Summary</h3>
+      <div class="mpos-row"><span class="label">GBP Equivalent</span><span class="value">£100.00</span></div>
+      <div class="mpos-row"><span class="label">mPOS Fee (1.2%)</span><span class="value gold">£1.20</span></div>
+      <div class="mpos-row"><span class="label">Recipient Gets</span><span class="value green">£98.80</span></div>
+      <div class="mpos-row"><span class="label">Route</span><span class="value">NG-004 → UK-007</span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(5)">Engage UK Agent →</button>
+  </div>
+
+  <!-- SCREEN 5: RECIPIENT AGENT UK -->
+  <div class="mpos-screen" id="screen5">
+    <div class="mpos-header">
+      <h2>🧑‍💼 Mobile Point of Service (mPOS)</h2>
+      <p>Recipient Side Agent — United Kingdom</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Agent Selection — UK Side</h3>
+      <p style="font-size:12px;color:#666;margin-bottom:12px;">mPOS engine selects UK agent with sufficient GBP liquidity</p>
+      <div class="agent-card selected">
+        <div class="agent-name">✅ Agent UK-007 — London</div>
+        <div class="agent-detail">GBP Liquidity: £285,000 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐⭐⭐ | Response: 0.2s</div>
+        <div class="agent-detail" style="color:#4CAF50;margin-top:4px;">Selected — highest liquidity + fastest response</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-name">Agent UK-013 — Manchester</div>
+        <div class="agent-detail">GBP Liquidity: £42,000 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐⭐ | Response: 0.5s</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-name">Agent UK-021 — Birmingham</div>
+        <div class="agent-detail">GBP Liquidity: £18,500 available</div>
+        <div class="agent-detail">Rating: ⭐⭐⭐ | Response: 0.9s</div>
+      </div>
+    </div>
+    <div class="mpos-card">
+      <h3>UK Agent Action</h3>
+      <div class="mpos-row"><span class="label">Agent</span><span class="value">UK-007 London</span></div>
+      <div class="mpos-row"><span class="label">GBP Reserved</span><span class="value red">- £98.80</span></div>
+      <div class="mpos-row"><span class="label">Agent Balance</span><span class="value">£284,901.20</span></div>
+      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Reserved ✓</span></span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(6)">Execute Local Payout →</button>
+  </div>
+
+  <!-- SCREEN 6: LOCAL PAYOUT -->
+  <div class="mpos-screen" id="screen6">
+    <div class="mpos-header">
+      <h2>🏦 Mobile Point of Service (mPOS)</h2>
+      <p>Local Payout — United Kingdom</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Key Principle</h3>
+      <div class="info-box-blue">
+        💡 No money crosses the border in real time. UK agent pays recipient locally from pre-funded GBP pool.
+      </div>
+      <div class="flow-step">
+        <span class="icon">🏦</span>
+        <div class="text"><strong>Recipient Bank Identified</strong>Barclays UK — Sort Code 20-00-00</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">💸</span>
+        <div class="text"><strong>Local Payment Sent</strong>Agent UK-007 pays £98.80 via Faster Payments</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">✅</span>
+        <div class="text"><strong>Recipient Credited</strong>Funds in account within minutes</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+      <div class="center" style="font-size:12px;color:#666;">Engine processing — Step 3 of 4</div>
+    </div>
+    <div class="mpos-card">
+      <h3>Payout Confirmation</h3>
+      <div class="mpos-row"><span class="label">Recipient</span><span class="value">John Adeyemi</span></div>
+      <div class="mpos-row"><span class="label">Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Amount Paid</span><span class="value green">£98.80</span></div>
+      <div class="mpos-row"><span class="label">Method</span><span class="value">Faster Payments (Local)</span></div>
+      <div class="mpos-row"><span class="label">Time</span><span class="value green">⚡ Near Instant</span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(7)">Update Ledger →</button>
+  </div>
+
+  <!-- SCREEN 7: LEDGER -->
+  <div class="mpos-screen" id="screen7">
+    <div class="mpos-header">
+      <h2>📒 Mobile Point of Service (mPOS)</h2>
+      <p>Multi-Ledger System Update</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Ledger Entries — This Transaction</h3>
+      <table class="ledger-table">
+        <tr>
+          <th>Entity</th>
+          <th>Currency</th>
+          <th>Movement</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Nigeria Pool</td>
+          <td>NGN</td>
+          <td style="color:#e53935;">- ₦205,000</td>
+          <td><span class="badge badge-green">Posted</span></td>
+        </tr>
+        <tr>
+          <td>UK Pool</td>
+          <td>GBP</td>
+          <td style="color:#e53935;">- £98.80</td>
+          <td><span class="badge badge-green">Posted</span></td>
+        </tr>
+        <tr>
+          <td>Agent NG-004</td>
+          <td>NGN</td>
+          <td style="color:#e53935;">- ₦205,000</td>
+          <td><span class="badge badge-green">Posted</span></td>
+        </tr>
+        <tr>
+          <td>Agent UK-007</td>
+          <td>GBP</td>
+          <td style="color:#e53935;">- £98.80</td>
+          <td><span class="badge badge-green">Posted</span></td>
+        </tr>
+        <tr>
+          <td>mPOS Revenue</td>
+          <td>GBP</td>
+          <td style="color:#4CAF50;">+ £1.20</td>
+          <td><span class="badge badge-green">Posted</span></td>
+        </tr>
+      </table>
+    </div>
+    <div class="mpos-card">
+      <h3>Ledger Principle</h3>
+      <div class="info-box-green">
+        ✅ Value transferred via ledger entries. No physical cross-border movement occurred. Pools rebalanced in background settlement cycle.
+      </div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(8)">View Agent Marketplace →</button>
+  </div>
+
+  <!-- SCREEN 8: AGENT MARKETPLACE -->
+  <div class="mpos-screen" id="screen8">
+    <div class="mpos-header">
+      <h2>🏪 Mobile Point of Service (mPOS)</h2>
+      <p>Agent Marketplace — Liquidity Rebalancing</p>
+    </div>
+    <div class="mpos-card">
+      <h3>Why the Marketplace Exists</h3>
+      <div class="info-box-gold">
+        ⚖️ As agents pay out, their liquidity drops. The marketplace keeps agents funded so the system never stalls or becomes imbalanced.
+      </div>
+      <div class="mpos-row"><span class="label">Nigeria Agents Active</span><span class="value green">12 agents</span></div>
+      <div class="mpos-row"><span class="label">UK Agents Active</span><span class="value green">8 agents</span></div>
+      <div class="mpos-row"><span class="label">Total Liquidity Pool</span><span class="value">£4.2M equivalent</span></div>
+    </div>
+    <div class="mpos-card">
+      <h3>Live Agent Marketplace</h3>
+      <div class="market-item">
+        <div>
+          <div class="agent-id">Agent UK-007 🇬🇧</div>
+          <div style="color:#666;font-size:11px;">Requesting top-up — GBP low</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="liquidity-bar"><div class="liquidity-fill" style="width:30%;background:#e53935;"></div></div>
+          <div style="font-size:11px;color:#e53935;margin-top:3px;">30% remaining</div>
+        </div>
+      </div>
+      <div class="market-item">
+        <div>
+          <div class="agent-id">Agent NG-004 🇳🇬</div>
+          <div style="color:#666;font-size:11px;">Stable — sufficient liquidity</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="liquidity-bar"><div class="liquidity-fill" style="width:75%;"></div></div>
+          <div style="font-size:11px;color:#4CAF50;margin-top:3px;">75% remaining</div>
+        </div>
+      </div>
+      <div class="market-item">
+        <div>
+          <div class="agent-id">Agent UK-013 🇬🇧</div>
+          <div style="color:#666;font-size:11px;">Offering GBP liquidity</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="liquidity-bar"><div class="liquidity-fill" style="width:90%;"></div></div>
+          <div style="font-size:11px;color:#4CAF50;margin-top:3px;">90% remaining</div>
+        </div>
+      </div>
+      <div class="market-item">
+        <div>
+          <div class="agent-id">Agent NG-011 🇳🇬</div>
+          <div style="color:#666;font-size:11px;">Offering NGN liquidity</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="liquidity-bar"><div class="liquidity-fill" style="width:60%;"></div></div>
+          <div style="font-size:11px;color:#C9972B;margin-top:3px;">60% remaining</div>
+        </div>
+      </div>
+    </div>
+    <div class="mpos-card">
+      <h3>Rebalancing Action</h3>
+      <div class="mpos-row"><span class="label">UK-013 → UK-007</span><span class="value green">£50,000 transferred</span></div>
+      <div class="mpos-row"><span class="label">Marketplace Status</span><span class="value"><span class="badge badge-green">Balanced ✓</span></span></div>
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(9)">View Settlement Cycle →</button>
+  </div>
+
+  <!-- SCREEN 9: SETTLEMENT COMPLETE -->
+  <div class="mpos-screen" id="screen9">
+    <div class="mpos-header">
+      <h2>✅ Mobile Point of Service (mPOS)</h2>
+      <p>Full Settlement Cycle Complete</p>
+    </div>
+    <div class="big-icon">🎉</div>
+    <div class="mpos-card">
+      <h3>Transaction Summary</h3>
+      <div class="mpos-row"><span class="label">Reference</span><span class="value">MPOS-2026-00847</span></div>
+      <div class="mpos-row"><span class="label">Sender Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
+      <div class="mpos-row"><span class="label">Recipient Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Amount Sent</span><span class="value">₦205,000</span></div>
+      <div class="mpos-row"><span class="label">Amount Received</span><span class="value green">£98.80</span></div>
+      <div class="mpos-row"><span class="label">mPOS Fee</span><span class="value gold">1.2%</span></div>
+      <div class="mpos-row"><span class="label">Total Time</span><span class="value green">⚡ Under 1 Hour</span></div>
+      <div class="mpos-row"><span class="label">SWIFT Equivalent</span><span class="value red">3–5 Business Days</span></div>
+    </div>
+    <div class="mpos-card">
+      <h3>Settlement Cycle Status</h3>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+      <div class="mpos-row"><span class="label">Ledger Posted</span><span class="value"><span class="badge badge-green">✓ Done</span></span></div>
+      <div class="mpos-row"><span class="label">Agents Rebalanced</span><span class="value"><span class="badge badge-green">✓ Done</span></span></div>
+      <div class="mpos-row"><span class="label">Bank Reconciliation</span><span class="value"><span class="badge badge-gold">Scheduled Tonight</span></span></div>
+      <div class="mpos-row"><span class="label">System Status</span><span class="value"><span class="badge badge-green">All Systems Stable</span></span></div>
+    </div>
+    <div class="info-box-blue" style="text-align:center;">
+      💡 <strong>No money crossed the border in real time.</strong><br/>
+      Value transferred via coordinated local payouts and ledger balancing — the mPOS way.
+    </div>
+    <button class="mpos-btn" onclick="nextScreen(1)">▶ Run New Transaction</button>
+  </div>
+
+</div>
+
+<script>
+  function nextScreen(num) {
+    document.querySelectorAll('.mpos-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen' + num).classList.add('active');
+    updateDots(num);
+    window.scrollTo(0, 0);
+  }
+  function updateDots(num) {
+    for (let i = 1; i <= 9; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (i < num) dot.className = 'step-dot done';
+      else if (i === num) dot.className = 'step-dot active';
+      else dot.className = 'step-dot';
+    }
+  }
+  function updateDisplay(val) {
+    document.getElementById('amountDisplay').textContent = 'NGN ' + Number(val).toLocaleString();
+  }
+</script>
+</body>
+</html>
