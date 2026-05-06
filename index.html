@@ -17,23 +17,6 @@ body {
   margin: auto;
 }
 
-/* LOGO */
-.logo {
-  text-align: center;
-  margin-bottom: 15px;
-}
-.logo img {
-  width: 120px;
-}
-.logo-text {
-  font-size: 22px;
-  font-weight: bold;
-  color: #1B4F8C;
-  margin-top: 5px;
-  letter-spacing: 2px;
-}
-
-/* HEADER */
 .header {
   background:#1B4F8C;
   color:#fff;
@@ -42,7 +25,6 @@ body {
   text-align:center;
 }
 
-/* CARD */
 .card {
   background:#fff;
   padding:15px;
@@ -51,7 +33,6 @@ body {
   box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* ROW */
 .row {
   display:flex;
   justify-content:space-between;
@@ -71,7 +52,6 @@ body {
 .red { color:#e53935; }
 .gold { color:#C9972B; }
 
-/* BUTTON */
 .btn {
   width:100%;
   padding:12px;
@@ -82,15 +62,10 @@ body {
   border-radius:10px;
   cursor:pointer;
 }
-.btn:hover {
-  background:#C9972B;
-}
 
-/* SCREENS */
 .screen { display:none; }
 .active { display:block; }
 
-/* INFO BOX */
 .info {
   font-size:12px;
   background:#eef4fb;
@@ -104,25 +79,17 @@ body {
 <body>
 <div class="wrap">
 
-<!-- LOGO -->
-<div class="logo">
-  <!-- Replace this src if you host elsewhere -->
-  <img src="a_logo_for_mpos_is_displayed_against_a_white_bac.png" alt="mPOS Logo">
-  <div class="logo-text">mPOS</div>
-</div>
-
-
 <!-- SCREEN 1 -->
 <div class="screen active" id="s1">
   <div class="header">
-    <h3>Settlement Engine</h3>
+    <h3>mPOS Settlement Engine</h3>
     <p>Bank Embedded Infrastructure</p>
   </div>
 
   <div class="card">
     <div class="info">
       mPOS is a backend settlement layer embedded inside bank systems.  
-      It coordinates local liquidity to fulfill cross-border obligations without requiring real-time international transfers.
+      It coordinates local liquidity to fulfill cross-border obligations without requiring real-time international fund movement.
     </div>
 
     <div class="row"><span>Origin Bank</span><span class="value">Stanbic 🇳🇬</span></div>
@@ -142,8 +109,8 @@ body {
 
   <div class="card">
     <div class="info">
-      Customer initiates transfer via bank.  
-      Bank performs KYC and authentication before calling mPOS.
+      Customer initiates transfer via originating bank.  
+      Bank performs KYC + authentication before sending instruction to mPOS.
     </div>
 
     <div class="row"><span>Status</span><span class="value green">Received</span></div>
@@ -179,7 +146,8 @@ body {
 
   <div class="card">
     <div class="info">
-      Engine assigns a qualified liquidity provider with sufficient balance.
+      Engine allocates a qualified liquidity provider (agent) with sufficient balance.  
+      Allocation is system-controlled to ensure fairness and distribution.
     </div>
 
     <div class="row"><span>Agent</span><span class="value">NG-004</span></div>
