@@ -1,124 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>mPOS — Settlement Engine</title>
 
 <style>
-:root{
-  --blue:#1B4F8C;
-  --gold:#C9972B;
-  --green:#4CAF50;
-  --red:#e53935;
-  --bg:#f4f6f9;
-}
-*{box-sizing:border-box}
-body{
-  margin:0; font-family:Inter, Arial, sans-serif; background:var(--bg);
-}
-.wrap{max-width:1100px;margin:0 auto;padding:20px}
-
-/* TOP */
-.top{
-  display:flex; gap:20px; align-items:center; margin-bottom:15px;
-}
-.logo img{width:80px}
-.logo-text{font-weight:800; letter-spacing:2px; color:var(--blue)}
-
-/* LAYOUT */
-.layout{
-  display:grid;
-  grid-template-columns: 420px 1fr;
-  gap:20px;
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  padding: 20px;
 }
 
-/* LEFT APP */
-.app{
-  background:#fff;border-radius:12px;padding:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+.wrap {
+  max-width: 420px;
+  margin: auto;
 }
 
-/* RIGHT DASHBOARD */
-.dashboard{
-  background:#fff;border-radius:12px;padding:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+/* LOGO */
+.logo {
+  text-align: center;
+  margin-bottom: 15px;
+}
+.logo img {
+  width: 120px;
+}
+.logo-text {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1B4F8C;
+  margin-top: 5px;
+  letter-spacing: 2px;
 }
 
 /* HEADER */
-.header{
-  background:var(--blue);color:#fff;padding:12px;border-radius:10px;text-align:center;
+.header {
+  background:#1B4F8C;
+  color:#fff;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
 }
-.header h3{margin:0;font-size:14px}
-.header p{margin:4px 0 0;font-size:11px;color:#cfe0f7}
 
 /* CARD */
-.card{
-  margin-top:10px;background:#f8fafc;padding:10px;border-radius:8px;
+.card {
+  background:#fff;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
-.row{
-  display:flex;justify-content:space-between;padding:6px;font-size:12px;
+
+/* ROW */
+.row {
+  display:flex;
+  justify-content:space-between;
+  padding:8px;
+  background:#f8fafc;
+  margin-bottom:6px;
+  border-radius:6px;
+  font-size:13px;
 }
-.value{font-weight:700;color:var(--blue)}
-.green{color:var(--green)}
-.red{color:var(--red)}
-.gold{color:var(--gold)}
+
+.value {
+  font-weight:bold;
+  color:#1B4F8C;
+}
+
+.green { color:#4CAF50; }
+.red { color:#e53935; }
+.gold { color:#C9972B; }
 
 /* BUTTON */
-.btn{
-  width:100%;margin-top:10px;padding:10px;border:none;border-radius:8px;
-  background:var(--blue);color:#fff;font-weight:600;cursor:pointer;
+.btn {
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  background:#1B4F8C;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
 }
-.btn:hover{background:var(--gold)}
+.btn:hover {
+  background:#C9972B;
+}
 
 /* SCREENS */
-.screen{display:none}
-.active{display:block;animation:fade .4s ease}
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
+.screen { display:none; }
+.active { display:block; }
 
-/* STATUS PANEL */
-.status-box{
-  background:#eef4fb;padding:10px;border-left:4px solid var(--blue);
-  font-size:12px;margin-bottom:10px;border-radius:6px;
+/* INFO BOX */
+.info {
+  font-size:12px;
+  background:#eef4fb;
+  padding:10px;
+  border-left:4px solid #1B4F8C;
+  margin-bottom:10px;
 }
-
-/* LOG */
-.log{
-  height:320px; overflow:auto; background:#0d1117; color:#c9d1d9;
-  padding:10px;border-radius:8px;font-family:monospace;font-size:11px;
-}
-.log-line{margin-bottom:4px}
-
-/* METRICS */
-.metrics{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;
-}
-.metric{
-  background:#f8fafc;padding:10px;border-radius:8px;text-align:center;
-}
-.metric h4{margin:0;font-size:11px;color:#666}
-.metric span{font-weight:800;color:var(--blue)}
 </style>
 </head>
 
 <body>
 <div class="wrap">
 
-<div class="top">
-  <div class="logo">
-    <img src="a_logo_for_mpos_is_displayed_against_a_white_bac.png">
-  </div>
-  <div class="logo-text">mPOS ENGINE</div>
+<!-- LOGO -->
+<div class="logo">
+  <!-- Replace this src if you host elsewhere -->
+  <img src="a_logo_for_mpos_is_displayed_against_a_white_bac.png" alt="mPOS Logo">
+  <div class="logo-text">mPOS</div>
 </div>
 
-<div class="layout">
 
-<!-- LEFT: APP FLOW -->
-<div class="app">
-
+<!-- SCREEN 1 -->
 <div class="screen active" id="s1">
   <div class="header">
     <h3>Settlement Engine</h3>
@@ -126,135 +120,159 @@ body{
   </div>
 
   <div class="card">
-    <div class="row"><span>Origin</span><span class="value">Stanbic 🇳🇬</span></div>
+    <div class="info">
+      mPOS is a backend settlement layer embedded inside bank systems.  
+      It coordinates local liquidity to fulfill cross-border obligations without requiring real-time international transfers.
+    </div>
+
+    <div class="row"><span>Origin Bank</span><span class="value">Stanbic 🇳🇬</span></div>
     <div class="row"><span>Destination</span><span class="value">Barclays 🇬🇧</span></div>
     <div class="row"><span>Amount</span><span class="value">₦205,000 → £100</span></div>
   </div>
 
-  <button class="btn" onclick="step(2,'INIT_REQUEST')">Start</button>
+  <button class="btn" onclick="next(2)">Start →</button>
 </div>
 
+
+<!-- SCREEN 2 -->
 <div class="screen" id="s2">
-  <div class="header"><h3>API Request</h3></div>
+  <div class="header">
+    <h3>Bank API Request</h3>
+  </div>
+
   <div class="card">
+    <div class="info">
+      Customer initiates transfer via bank.  
+      Bank performs KYC and authentication before calling mPOS.
+    </div>
+
     <div class="row"><span>Status</span><span class="value green">Received</span></div>
+    <div class="row"><span>Auth</span><span class="value green">Valid</span></div>
   </div>
-  <button class="btn" onclick="step(3,'VALIDATE')">Validate</button>
+
+  <button class="btn" onclick="next(3)">Validate →</button>
 </div>
 
+
+<!-- SCREEN 3 -->
 <div class="screen" id="s3">
-  <div class="header"><h3>Validation</h3></div>
-  <div class="card">
-    <div class="row"><span>AML</span><span class="value green">Passed</span></div>
+  <div class="header">
+    <h3>Engine Validation</h3>
   </div>
-  <button class="btn" onclick="step(4,'ASSIGN_SENDER')">Assign Liquidity</button>
+
+  <div class="card">
+    <div class="row"><span>AML Check</span><span class="value green">Passed</span></div>
+    <div class="row"><span>Tier Limit</span><span class="value green">OK</span></div>
+    <div class="row"><span>FX Rate</span><span class="value">Locked</span></div>
+    <div class="row"><span>Reference</span><span class="value">MPOS-847</span></div>
+  </div>
+
+  <button class="btn" onclick="next(4)">Assign Liquidity →</button>
 </div>
 
+
+<!-- SCREEN 4 -->
 <div class="screen" id="s4">
-  <div class="header"><h3>Sender Agent</h3></div>
+  <div class="header">
+    <h3>Sender Liquidity</h3>
+  </div>
+
   <div class="card">
+    <div class="info">
+      Engine assigns a qualified liquidity provider with sufficient balance.
+    </div>
+
     <div class="row"><span>Agent</span><span class="value">NG-004</span></div>
+    <div class="row"><span>Ledger Locked</span><span class="value gold">₦205,000</span></div>
   </div>
-  <button class="btn" onclick="step(5,'DEBIT_LEDGER')">Execute</button>
+
+  <button class="btn" onclick="next(5)">Execute →</button>
 </div>
 
+
+<!-- SCREEN 5 -->
 <div class="screen" id="s5">
-  <div class="header"><h3>Ledger</h3></div>
-  <div class="card">
-    <div class="row"><span>Debit</span><span class="value red">₦205,000</span></div>
+  <div class="header">
+    <h3>Ledger Adjustment</h3>
   </div>
-  <button class="btn" onclick="step(6,'ASSIGN_RECIPIENT')">Recipient</button>
+
+  <div class="card">
+    <div class="row"><span>Fiat Received</span><span class="value green">+₦205,000</span></div>
+    <div class="row"><span>Ledger Deduction</span><span class="value red">-₦205,000</span></div>
+  </div>
+
+  <button class="btn" onclick="next(6)">Recipient Side →</button>
 </div>
 
+
+<!-- SCREEN 6 -->
 <div class="screen" id="s6">
-  <div class="header"><h3>Recipient Agent</h3></div>
+  <div class="header">
+    <h3>Recipient Liquidity</h3>
+  </div>
+
   <div class="card">
     <div class="row"><span>Agent</span><span class="value">UK-007</span></div>
+    <div class="row"><span>GBP Locked</span><span class="value gold">£98.80</span></div>
   </div>
-  <button class="btn" onclick="step(7,'PAYOUT')">Payout</button>
+
+  <button class="btn" onclick="next(7)">Payout →</button>
 </div>
 
+
+<!-- SCREEN 7 -->
 <div class="screen" id="s7">
-  <div class="header"><h3>Complete</h3></div>
+  <div class="header">
+    <h3>Local Payout</h3>
+  </div>
+
+  <div class="card">
+    <div class="row"><span>Recipient</span><span class="value green">Credited</span></div>
+    <div class="row"><span>Amount</span><span class="value">£98.80</span></div>
+  </div>
+
+  <button class="btn" onclick="next(8)">Fees →</button>
+</div>
+
+
+<!-- SCREEN 8 -->
+<div class="screen" id="s8">
+  <div class="header">
+    <h3>Fee Distribution</h3>
+  </div>
+
+  <div class="card">
+    <div class="row"><span>Total Fee</span><span class="value gold">1.2%</span></div>
+    <div class="row"><span>Buffer</span><span class="value red">0.2%</span></div>
+    <div class="row"><span>Participants</span><span class="value">1%</span></div>
+  </div>
+
+  <button class="btn" onclick="next(9)">Complete →</button>
+</div>
+
+
+<!-- SCREEN 9 -->
+<div class="screen" id="s9">
+  <div class="header">
+    <h3>Settlement Complete</h3>
+  </div>
+
   <div class="card">
     <div class="row"><span>Status</span><span class="value green">SETTLED</span></div>
+    <div class="row"><span>Time</span><span class="value green">Instant</span></div>
   </div>
-  <button class="btn" onclick="reset()">Restart</button>
+
+  <button class="btn" onclick="next(1)">Restart</button>
 </div>
 
 </div>
 
-<!-- RIGHT: DASHBOARD -->
-<div class="dashboard">
-
-<div class="status-box">
-  <strong>System Status:</strong> <span id="sys">Idle</span>
-</div>
-
-<div class="log" id="log"></div>
-
-<div class="metrics">
-  <div class="metric">
-    <h4>Latency</h4><span id="lat">0ms</span>
-  </div>
-  <div class="metric">
-    <h4>Success Rate</h4><span id="rate">100%</span>
-  </div>
-  <div class="metric">
-    <h4>Requests</h4><span id="req">0</span>
-  </div>
-</div>
-
-</div>
-
-</div>
-</div>
 
 <script>
-let requests=0;
-
-function log(msg){
-  const logBox=document.getElementById('log');
-  const line=document.createElement('div');
-  line.className='log-line';
-  line.textContent='> '+msg;
-  logBox.appendChild(line);
-  logBox.scrollTop=logBox.scrollHeight;
-}
-
-function fakeAPI(action){
-  const latency=Math.floor(Math.random()*800)+200;
-  document.getElementById('lat').innerText=latency+"ms";
-
-  return new Promise((res)=>{
-    setTimeout(()=>{
-      requests++;
-      document.getElementById('req').innerText=requests;
-
-      log(action+" OK ("+latency+"ms)");
-      res(true);
-    },latency);
-  });
-}
-
-async function step(n,action){
-  document.getElementById('sys').innerText=action;
-
-  log("Calling API: "+action);
-  await fakeAPI(action);
-
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+function next(n){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s'+n).classList.add('active');
-}
-
-function reset(){
-  document.getElementById('log').innerHTML='';
-  requests=0;
-  document.getElementById('req').innerText=0;
-  document.getElementById('sys').innerText="Idle";
-
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s1').classList.add('active');
+  window.scrollTo(0,0);
 }
 </script>
 
