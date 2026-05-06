@@ -3,80 +3,152 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mobile Point of Service (mPOS)</title>
+  <title>mPOS — Mobile Point of Service</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; padding: 20px; }
-    .mpos-wrap { max-width: 400px; margin: 0 auto; }
+    .mpos-wrap { max-width: 420px; margin: 0 auto; }
+
+    /* LOGO */
+    .mpos-logo {
+      text-align: center;
+      padding: 24px 0 10px 0;
+    }
+    .mpos-logo-mark {
+      display: inline-block;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #1B4F8C;
+      border-bottom: 3px solid #C9972B;
+      padding-bottom: 4px;
+    }
+    .mpos-logo-sub {
+      font-size: 10px;
+      color: #999;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    /* HEADER */
     .mpos-header { background: #1B4F8C; color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
-    .mpos-header h2 { font-size: 15px; letter-spacing: 1px; margin-bottom: 4px; }
+    .mpos-header h2 { font-size: 14px; letter-spacing: 1px; margin-bottom: 4px; font-weight: 700; }
     .mpos-header p { font-size: 11px; color: #B8D4F0; }
-    .mpos-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .mpos-card h3 { font-size: 13px; color: #1B4F8C; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f0f4f8; padding-bottom: 8px; margin-bottom: 15px; }
-    .mpos-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+
+    /* CARD */
+    .mpos-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .mpos-card h3 { font-size: 12px; color: #1B4F8C; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f0f4f8; padding-bottom: 8px; margin-bottom: 14px; }
+
+    /* ROWS */
+    .mpos-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 7px; font-size: 12px; }
     .mpos-row .label { color: #666; }
     .mpos-row .value { font-weight: bold; color: #1B4F8C; }
     .mpos-row .value.green { color: #4CAF50; }
     .mpos-row .value.gold { color: #C9972B; }
     .mpos-row .value.red { color: #e53935; }
+
+    /* BADGES */
     .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
     .badge-green { background: #e8f5e9; color: #4CAF50; }
     .badge-gold { background: #fff8e1; color: #C9972B; }
     .badge-blue { background: #e3f0fb; color: #1B4F8C; }
     .badge-red { background: #fce4ec; color: #e53935; }
-    .mpos-btn { width: 100%; padding: 14px; background: #1B4F8C; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
+    .badge-grey { background: #f0f0f0; color: #666; }
+
+    /* BUTTONS */
+    .mpos-btn { width: 100%; padding: 14px; background: #1B4F8C; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
     .mpos-btn:hover { background: #C9972B; }
+    .mpos-btn-outline { width: 100%; padding: 12px; background: white; color: #1B4F8C; border: 2px solid #1B4F8C; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+
+    /* SCREENS */
     .mpos-screen { display: none; }
     .mpos-screen.active { display: block; }
-    .flow-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
-    .flow-step .icon { font-size: 20px; margin-top: 2px; }
-    .flow-step .text strong { display: block; color: #1B4F8C; margin-bottom: 2px; }
-    .flow-step .text { color: #333; flex: 1; }
-    .progress-bar { background: #e0e0e0; border-radius: 20px; height: 8px; margin: 15px 0; overflow: hidden; }
+
+    /* FLOW STEPS */
+    .flow-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+    .flow-step .icon { font-size: 18px; margin-top: 2px; }
+    .flow-step .text strong { display: block; color: #1B4F8C; margin-bottom: 2px; font-size: 12px; }
+    .flow-step .text { color: #444; flex: 1; }
+
+    /* PROGRESS */
+    .progress-bar { background: #e0e0e0; border-radius: 20px; height: 6px; margin: 12px 0; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #1B4F8C, #C9972B); }
-    .step-indicator { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; }
-    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+
+    /* STEP DOTS */
+    .step-indicator { display: flex; justify-content: center; gap: 5px; margin-bottom: 14px; }
+    .step-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
     .step-dot.active { background: #1B4F8C; }
     .step-dot.done { background: #4CAF50; }
-    .agent-selected { border: 2px solid #4CAF50; border-radius: 10px; padding: 14px; margin-bottom: 10px; background: #f1f8f1; }
-    .agent-selected .agent-name { font-weight: bold; font-size: 13px; color: #1B4F8C; }
-    .agent-selected .agent-detail { font-size: 12px; color: #666; margin-top: 4px; }
-    .random-pool { background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-    .random-pool-title { font-size: 12px; color: #666; margin-bottom: 8px; text-align: center; }
-    .random-agents { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-    .random-agent-pill { background: #e0e0e0; border-radius: 20px; padding: 4px 10px; font-size: 11px; color: #999; }
-    .random-agent-pill.selected-pill { background: #1B4F8C; color: white; }
-    .ledger-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .ledger-table th { background: #1B4F8C; color: white; padding: 8px 10px; text-align: left; }
-    .ledger-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f8; }
-    .info-box-blue { background: #e3f0fb; border-left: 4px solid #1B4F8C; padding: 12px; border-radius: 8px; font-size: 13px; color: #1B4F8C; margin-bottom: 12px; }
-    .info-box-gold { background: #fff8e1; border-left: 4px solid #C9972B; padding: 12px; border-radius: 8px; font-size: 13px; color: #333; margin-bottom: 12px; }
-    .info-box-green { background: #f1f8f1; border-left: 4px solid #4CAF50; padding: 12px; border-radius: 8px; font-size: 13px; color: #333; margin-bottom: 12px; }
-    .info-box-red { background: #fce4ec; border-left: 4px solid #e53935; padding: 12px; border-radius: 8px; font-size: 13px; color: #333; margin-bottom: 12px; }
-    .fee-breakdown { background: #f8fafc; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .fee-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px dashed #e0e0e0; }
+
+    /* AGENT CARD */
+    .agent-assigned { border: 2px solid #4CAF50; border-radius: 10px; padding: 14px; margin-top: 12px; background: #f1f8f1; }
+    .agent-assigned .agent-name { font-weight: bold; font-size: 13px; color: #1B4F8C; margin-bottom: 6px; }
+    .agent-assigned .agent-detail { font-size: 12px; color: #555; margin-top: 3px; }
+
+    /* INFO BOXES */
+    .info-box { padding: 12px; border-radius: 8px; font-size: 12px; margin-bottom: 12px; line-height: 1.6; }
+    .info-blue { background: #e3f0fb; border-left: 4px solid #1B4F8C; color: #1B4F8C; }
+    .info-gold { background: #fff8e1; border-left: 4px solid #C9972B; color: #555; }
+    .info-green { background: #f1f8f1; border-left: 4px solid #4CAF50; color: #333; }
+    .info-red { background: #fce4ec; border-left: 4px solid #e53935; color: #333; }
+
+    /* FEE TABLE */
+    .fee-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px dashed #e0e0e0; }
     .fee-row:last-child { border-bottom: none; }
-    .fee-row .fee-label { color: #666; }
+    .fee-row .fee-label { color: #555; }
     .fee-row .fee-value { font-weight: bold; color: #1B4F8C; }
+
+    /* LEDGER TABLE */
+    .ledger-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .ledger-table th { background: #1B4F8C; color: white; padding: 8px; text-align: left; }
+    .ledger-table td { padding: 8px; border-bottom: 1px solid #f0f4f8; }
+
+    /* TIER TABLE */
+    .tier-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .tier-table th { background: #1B4F8C; color: white; padding: 7px 10px; text-align: left; }
+    .tier-table td { padding: 7px 10px; border-bottom: 1px solid #f0f4f8; }
+    .tier-table tr.active-row td { background: #e3f0fb; font-weight: bold; }
+
+    /* TIMER */
     .timer-box { background: #fff8e1; border: 2px solid #C9972B; border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 12px; }
-    .timer-box .timer-num { font-size: 36px; font-weight: bold; color: #C9972B; }
-    .timer-box .timer-label { font-size: 12px; color: #666; margin-top: 4px; }
-    .mpos-input { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
-    .mpos-select { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; background: white; }
-    .amount-display { font-size: 30px; font-weight: bold; color: #1B4F8C; text-align: center; padding: 15px 0; }
-    .big-icon { font-size: 50px; text-align: center; margin: 15px 0; }
+    .timer-num { font-size: 36px; font-weight: bold; color: #C9972B; }
+    .timer-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+    /* SCREEN LABEL */
+    .screen-label { font-size: 10px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* SECURITY TAG */
+    .security-tag { background: #1B4F8C; color: white; padding: 7px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+    /* DISCLAIMER BOX */
+    .disclaimer { background: #1a1a2e; color: #B8D4F0; border-radius: 10px; padding: 16px; font-size: 11px; line-height: 1.8; margin-bottom: 15px; }
+    .disclaimer strong { color: white; display: block; margin-bottom: 8px; font-size: 12px; letter-spacing: 1px; }
+
+    /* SCAN ANIMATION */
+    .scan-box { background: #f8fafc; border: 1px dashed #1B4F8C; border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 12px; }
+    .scan-box .scan-title { font-size: 11px; color: #666; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .scan-result { display: inline-block; background: #1B4F8C; color: white; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: bold; margin-top: 8px; }
+
+    .big-icon { font-size: 48px; text-align: center; margin: 12px 0; }
     .center { text-align: center; }
-    .screen-label { font-size: 11px; color: #999; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-    .security-badge { display: flex; align-items: center; gap: 8px; background: #1B4F8C; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; }
-    .tier-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .tier-table th { background: #1B4F8C; color: white; padding: 8px 10px; text-align: left; }
-    .tier-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f8; }
-    .tier-table tr:last-child td { border-bottom: none; }
+
+    /* SYSTEM STATUS ROW */
+    .status-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f4f8; font-size: 12px; }
+    .status-row:last-child { border-bottom: none; }
+    .status-label { color: #666; }
   </style>
 </head>
 <body>
 <div class="mpos-wrap">
 
+  <!-- LOGO -->
+  <div class="mpos-logo">
+    <div class="mpos-logo-mark">mPOS</div>
+    <div class="mpos-logo-sub">Mobile Point of Service</div>
+  </div>
+
+  <!-- STEP DOTS -->
   <div class="step-indicator">
     <div class="step-dot active" id="dot1"></div>
     <div class="step-dot" id="dot2"></div>
@@ -91,479 +163,554 @@
     <div class="step-dot" id="dot11"></div>
   </div>
 
-  <!-- SCREEN 1: CUSTOMER INITIATES -->
+  <!-- SCREEN 1: SYSTEM OVERVIEW -->
   <div class="mpos-screen active" id="screen1">
     <div class="mpos-header">
-      <h2>📱 Mobile Point of Service (mPOS)</h2>
-      <p>Stanbic IBTC Bank — Nigeria</p>
+      <h2>BACKEND INFRASTRUCTURE DEMONSTRATION</h2>
+      <p>Settlement & Execution Engine — Technical Overview</p>
     </div>
-    <div class="screen-label">Step 1 of 11 — Customer Initiates Transfer</div>
+    <div class="screen-label">Screen 1 of 11 — System Overview</div>
+
+    <div class="disclaimer">
+      <strong>⚠️ INFRASTRUCTURE NOTICE</strong>
+      mPOS is not a consumer application. It is a backend settlement and execution infrastructure embedded directly into bank systems — similar to how Visa and Mastercard operate as invisible rails inside banking platforms. Customers never interact with mPOS directly. Banks embed mPOS into their own mobile banking apps, core banking systems, and internal platforms. What follows is a technical demonstration of the mPOS engine as seen from the bank and system perspective.
+    </div>
+
     <div class="mpos-card">
-      <h3>New International Transfer</h3>
-      <div class="info-box-blue">
-        💡 Customer initiates transfer inside their bank app. They never leave the bank platform.
+      <h3>What mPOS Does</h3>
+      <div class="flow-step">
+        <span class="icon">🏦</span>
+        <div class="text"><strong>Bank-Embedded Settlement Rail</strong>mPOS sits inside bank infrastructure. The customer sees their bank. The bank uses mPOS.</div>
       </div>
-      <select class="mpos-select">
-        <option>🇳🇬 Send from Nigeria (NGN)</option>
-      </select>
-      <select class="mpos-select">
-        <option>🇬🇧 Send to United Kingdom (GBP)</option>
-        <option>🇺🇸 Send to United States (USD)</option>
-      </select>
-      <input class="mpos-input" type="number" placeholder="Enter amount (NGN)" oninput="updateDisplay(this.value)"/>
-      <div class="amount-display" id="amountDisplay">NGN 0</div>
-      <input class="mpos-input" type="text" placeholder="Recipient Full Name"/>
-      <input class="mpos-input" type="text" placeholder="Recipient Account Number"/>
-      <input class="mpos-input" type="text" placeholder="Recipient Bank (UK)"/>
+      <div class="flow-step">
+        <span class="icon">⚡</span>
+        <div class="text"><strong>Near Instant Cross-Border Settlement</strong>Value moves via coordinated local payouts and international ledger balancing — not physical cross-border transfer.</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">🌍</span>
+        <div class="text"><strong>Corridor-Agnostic Architecture</strong>Nigeria–UK is the entry corridor. The engine scales to any corridor globally.</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">🔐</span>
+        <div class="text"><strong>Compliance-Embedded</strong>KYC, AML, tier limits, and random agent assignment enforced at engine level — not retrofitted.</div>
+      </div>
     </div>
+
     <div class="mpos-card">
-      <h3>Transfer Summary</h3>
-      <div class="mpos-row"><span class="label">Platform Fee</span><span class="value gold">1.2%</span></div>
-      <div class="mpos-row"><span class="label">Rate</span><span class="value">1 GBP = 2,050 NGN</span></div>
+      <h3>Live Demonstration</h3>
+      <div class="mpos-row"><span class="label">Sender Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
+      <div class="mpos-row"><span class="label">Recipient Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Amount</span><span class="value">NGN 205,000 → £100.00</span></div>
+      <div class="mpos-row"><span class="label">Engine Fee</span><span class="value gold">1.2%</span></div>
       <div class="mpos-row"><span class="label">Settlement</span><span class="value green">⚡ Near Instant</span></div>
+      <div class="mpos-row"><span class="label">SWIFT Alternative</span><span class="value red">3–5 Business Days</span></div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(2)">Submit to mPOS Engine →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(2)">Start Engine Demonstration →</button>
   </div>
 
-  <!-- SCREEN 2: TIER LIMIT CHECK -->
+  <!-- SCREEN 2: BANK API REQUEST -->
   <div class="mpos-screen" id="screen2">
     <div class="mpos-header">
-      <h2>🏦 Mobile Point of Service (mPOS)</h2>
-      <p>Transaction Tier Verification</p>
+      <h2>BANK API REQUEST</h2>
+      <p>Stanbic IBTC — Nigeria → mPOS Engine</p>
     </div>
-    <div class="screen-label">Step 2 of 11 — Tier Limit Verified</div>
+    <div class="screen-label">Screen 2 of 11 — Bank Sends Instruction to mPOS</div>
+
     <div class="mpos-card">
-      <h3>Why Tier Limits Exist</h3>
-      <div class="info-box-gold">
-        ⚖️ Transaction limits are set per customer tier, approved by their bank. Limits control arbitration exposure and protect corridor balance. Higher tiers require bank approval and stronger identity verification.
+      <h3>How It Starts</h3>
+      <div class="info-box info-blue">
+        💡 A Stanbic IBTC customer initiates an international transfer inside their bank app. The bank authenticates the customer using its own KYC system, then sends a structured API request to the mPOS engine. The customer never sees or interacts with mPOS.
       </div>
     </div>
+
     <div class="mpos-card">
-      <h3>Customer Tier Structure</h3>
+      <h3>API Request Payload — Stanbic IBTC → mPOS</h3>
+      <div class="flow-step">
+        <span class="icon">📡</span>
+        <div class="text"><strong>API Endpoint Called</strong>POST /mpos/v1/transfer/initiate</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">🏦</span>
+        <div class="text"><strong>Origin Bank Confirmed</strong>Stanbic IBTC Nigeria — authenticated institution ✓</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">🔐</span>
+        <div class="text"><strong>Customer KYC</strong>Verified by Stanbic IBTC before API call — mPOS receives confirmed identity signal</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">📋</span>
+        <div class="text"><strong>Instruction Received</strong>Amount, corridor, recipient details, bank authentication token</div>
+      </div>
+    </div>
+
+    <div class="mpos-card">
+      <h3>Request Parameters</h3>
+      <div class="mpos-row"><span class="label">Origin Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
+      <div class="mpos-row"><span class="label">Send Amount</span><span class="value">NGN 205,000</span></div>
+      <div class="mpos-row"><span class="label">Corridor</span><span class="value">NG → UK</span></div>
+      <div class="mpos-row"><span class="label">Destination Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Recipient</span><span class="value">John Adeyemi</span></div>
+      <div class="mpos-row"><span class="label">Auth Token</span><span class="value"><span class="badge badge-green">Valid ✓</span></span></div>
+      <div class="mpos-row"><span class="label">Request Status</span><span class="value"><span class="badge badge-gold">Received</span></span></div>
+    </div>
+
+    <button class="mpos-btn" onclick="nextScreen(3)">Engine Processes Request →</button>
+  </div>
+
+  <!-- SCREEN 3: TIER LIMIT CHECK -->
+  <div class="mpos-screen" id="screen3">
+    <div class="mpos-header">
+      <h2>TIER LIMIT VERIFICATION</h2>
+      <p>Bank-Approved Transaction Controls</p>
+    </div>
+    <div class="screen-label">Screen 3 of 11 — Tier Limit Check</div>
+
+    <div class="mpos-card">
+      <h3>Why Tier Limits Exist</h3>
+      <div class="info-box info-gold">
+        ⚖️ Transaction limits are set per customer tier and approved by their bank. Limits are enforced at the mPOS engine level to control arbitration exposure, protect corridor balance, and comply with CBN regulatory requirements. Higher tiers require bank approval and enhanced identity verification.
+      </div>
+    </div>
+
+    <div class="mpos-card">
+      <h3>Bank-Defined Tier Structure</h3>
       <table class="tier-table">
         <tr>
           <th>Tier</th>
           <th>Daily Limit</th>
-          <th>Approval</th>
+          <th>Bank Approval</th>
         </tr>
         <tr>
           <td>Tier 1</td>
           <td>£500 / day</td>
-          <td>Bank KYC basic</td>
+          <td>Basic KYC</td>
         </tr>
-        <tr>
-          <td>Tier 2</td>
+        <tr class="active-row">
+          <td>Tier 2 ← This customer</td>
           <td>£2,000 / day</td>
-          <td>Bank KYC enhanced</td>
+          <td>Enhanced KYC</td>
         </tr>
         <tr>
           <td>Tier 3</td>
           <td>£10,000 / day</td>
-          <td>Bank full approval</td>
+          <td>Full approval</td>
         </tr>
         <tr>
           <td>Corporate</td>
-          <td>Custom limit</td>
-          <td>Bank + mPOS approval</td>
+          <td>Custom</td>
+          <td>Bank + mPOS</td>
         </tr>
       </table>
     </div>
+
     <div class="mpos-card">
-      <h3>This Customer — Tier Check</h3>
+      <h3>Engine Tier Check — This Transaction</h3>
       <div class="mpos-row"><span class="label">Customer Tier</span><span class="value"><span class="badge badge-blue">Tier 2</span></span></div>
       <div class="mpos-row"><span class="label">Daily Limit</span><span class="value">£2,000</span></div>
-      <div class="mpos-row"><span class="label">Used Today</span><span class="value gold">£100.00</span></div>
-      <div class="mpos-row"><span class="label">Remaining</span><span class="value green">£1,900.00</span></div>
-      <div class="mpos-row"><span class="label">This Transaction</span><span class="value">£100.00 ✓</span></div>
-      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Within Limit ✓</span></span></div>
+      <div class="mpos-row"><span class="label">Already Used Today</span><span class="value gold">£0.00</span></div>
+      <div class="mpos-row"><span class="label">This Transaction</span><span class="value">£100.00</span></div>
+      <div class="mpos-row"><span class="label">Remaining After</span><span class="value green">£1,900.00</span></div>
+      <div class="mpos-row"><span class="label">Limit Status</span><span class="value"><span class="badge badge-green">Within Limit ✓</span></span></div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(3)">Engine Validates Request →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(4)">Engine Validates Transaction →</button>
   </div>
 
-  <!-- SCREEN 3: ENGINE VALIDATES -->
-  <div class="mpos-screen" id="screen3">
+  <!-- SCREEN 4: ENGINE VALIDATES -->
+  <div class="mpos-screen" id="screen4">
     <div class="mpos-header">
-      <h2>⚙️ Mobile Point of Service (mPOS)</h2>
-      <p>Core Engine — Request Received</p>
+      <h2>ENGINE VALIDATION</h2>
+      <p>mPOS Core Engine — Transaction Processing</p>
     </div>
-    <div class="screen-label">Step 3 of 11 — Engine Validates Request</div>
+    <div class="screen-label">Screen 4 of 11 — Engine Validates & Locks</div>
+
     <div class="mpos-card">
-      <h3>Request Received from Stanbic IBTC</h3>
+      <h3>Engine Validation Sequence</h3>
       <div class="flow-step">
-        <span class="icon">🏦</span>
-        <div class="text"><strong>Bank API Request Received</strong>Stanbic IBTC sends payment instruction to mPOS engine</div>
+        <span class="icon">✅</span>
+        <div class="text"><strong>Bank Authentication Confirmed</strong>Stanbic IBTC token verified — authorised institution ✓</div>
       </div>
       <div class="flow-step">
         <span class="icon">🔐</span>
-        <div class="text"><strong>KYC & AML Verified</strong>Sender identity confirmed by bank ✓</div>
+        <div class="text"><strong>AML Screening Passed</strong>Transaction pattern checked against AML rules ✓</div>
       </div>
       <div class="flow-step">
-        <span class="icon">📋</span>
-        <div class="text"><strong>Transaction Logged</strong>Reference: MPOS-2026-00847</div>
+        <span class="icon">📊</span>
+        <div class="text"><strong>Tier Limit Confirmed</strong>Within bank-approved daily limit ✓</div>
       </div>
       <div class="flow-step">
         <span class="icon">💱</span>
-        <div class="text"><strong>FX Rate Locked</strong>1 GBP = 2,050 NGN at time of request</div>
+        <div class="text"><strong>FX Rate Locked</strong>1 GBP = 2,050 NGN — rate locked at time of request</div>
       </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+      <div class="flow-step">
+        <span class="icon">📋</span>
+        <div class="text"><strong>DP-TX Reference Generated</strong>Unique transaction state reference assigned — tracks full lifecycle</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+      <div class="center" style="font-size:11px;color:#999;">Engine processing — validation complete</div>
     </div>
+
     <div class="mpos-card">
-      <h3>Request Details</h3>
-      <div class="mpos-row"><span class="label">Amount Sent</span><span class="value">NGN 205,000</span></div>
+      <h3>Validated Transaction Parameters</h3>
+      <div class="mpos-row"><span class="label">DP-TX Reference</span><span class="value">MPOS-2026-00847</span></div>
+      <div class="mpos-row"><span class="label">NGN Amount</span><span class="value">₦205,000</span></div>
       <div class="mpos-row"><span class="label">Gross GBP</span><span class="value">£100.00</span></div>
-      <div class="mpos-row"><span class="label">Fee (1.2%)</span><span class="value gold">£1.20</span></div>
-      <div class="mpos-row"><span class="label">Recipient Gets</span><span class="value green">£98.80</span></div>
+      <div class="mpos-row"><span class="label">Engine Fee (1.2%)</span><span class="value gold">£1.20</span></div>
+      <div class="mpos-row"><span class="label">Net to Recipient</span><span class="value green">£98.80</span></div>
       <div class="mpos-row"><span class="label">Corridor</span><span class="value">Nigeria 🇳🇬 → UK 🇬🇧</span></div>
-      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-gold">Validating</span></span></div>
+      <div class="mpos-row"><span class="label">Validation Status</span><span class="value"><span class="badge badge-green">Approved ✓</span></span></div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(4)">Assign Sender Agent →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(5)">Assign Sender Agent →</button>
   </div>
 
-  <!-- SCREEN 4: RANDOM SENDER AGENT -->
-  <div class="mpos-screen" id="screen4">
-    <div class="mpos-header">
-      <h2>🧑‍💼 Mobile Point of Service (mPOS)</h2>
-      <p>Sender Agent Assignment — Nigeria</p>
-    </div>
-    <div class="screen-label">Step 4 of 11 — Sender Agent Randomly Assigned</div>
-    <div class="mpos-card">
-      <h3>What is an Agent?</h3>
-      <div class="info-box-gold">
-        👤 Agents are accredited bank customers with liquidity who have consented to participate in the mPOS network. They are <strong>randomly assigned</strong> by the engine — neither the sender nor the agent can select each other. This prevents coordinated attacks and money laundering.
-      </div>
-    </div>
-    <div class="mpos-card">
-      <h3>Engine Randomly Selecting from Pool</h3>
-      <div class="security-badge">
-        🔐 Security Protocol — Random Assignment Active
-      </div>
-      <div class="random-pool">
-        <div class="random-pool-title">Eligible Nigeria Agent Pool (qualifying NGN liquidity + valid IB ledger age)</div>
-        <div class="random-agents">
-          <span class="random-agent-pill">NG-001</span>
-          <span class="random-agent-pill">NG-002</span>
-          <span class="random-agent-pill">NG-003</span>
-          <span class="random-agent-pill selected-pill">NG-004 ✓</span>
-          <span class="random-agent-pill">NG-005</span>
-          <span class="random-agent-pill">NG-006</span>
-          <span class="random-agent-pill">NG-008</span>
-          <span class="random-agent-pill">NG-011</span>
-          <span class="random-agent-pill">NG-014</span>
-          <span class="random-agent-pill">NG-019</span>
-          <span class="random-agent-pill">NG-023</span>
-          <span class="random-agent-pill">NG-027</span>
-        </div>
-      </div>
-      <div class="agent-selected" style="margin-top:12px;">
-        <div class="agent-name">✅ System Assigned: Agent NG-004 — Lagos</div>
-        <div class="agent-detail">NGN Fiat Available: ₦48,500,000</div>
-        <div class="agent-detail">IB Ledger Balance: IB 24,500.00 units</div>
-        <div class="agent-detail">IB Ledger Age: 1 day — within 3-day limit ✓</div>
-        <div class="agent-detail" style="color:#4CAF50;margin-top:4px;">Randomly selected — identity concealed from sender</div>
-      </div>
-    </div>
-    <button class="mpos-btn" onclick="nextScreen(5)">Execute Sender Agent Entry →</button>
-  </div>
-
-  <!-- SCREEN 5: SENDER AGENT LEDGER -->
+  <!-- SCREEN 5: SENDER AGENT ASSIGNMENT -->
   <div class="mpos-screen" id="screen5">
     <div class="mpos-header">
-      <h2>📒 Mobile Point of Service (mPOS)</h2>
-      <p>Sender Agent — Ledger Entry Nigeria</p>
+      <h2>SENDER AGENT ASSIGNMENT</h2>
+      <p>Nigeria Side — Real Time Random Assignment</p>
     </div>
-    <div class="screen-label">Step 5 of 11 — Sender Agent Credited Fiat & Debited IB</div>
-    <div class="mpos-card">
-      <h3>How the Sender Agent Works</h3>
-      <div class="info-box-blue">
-        💡 The sender agent receives local NGN fiat from the customer's bank. In return, they are debited the exact GBP equivalent on the international ledger — IB 98.80, mirroring precisely what the recipient will receive. The 1.2% fee is handled separately by the engine.
-      </div>
-    </div>
-    <div class="mpos-card">
-      <h3>Agent NG-004 — Transaction Entry</h3>
-      <div class="mpos-row"><span class="label">NGN Fiat Received</span><span class="value green">+ ₦205,000</span></div>
-      <div class="mpos-row"><span class="label">IB Ledger Debited</span><span class="value red">- IB 98.80</span></div>
-      <div class="mpos-row"><span class="label">New NGN Balance</span><span class="value">₦48,705,000</span></div>
-      <div class="mpos-row"><span class="label">New IB Balance</span><span class="value">IB 24,401.20</span></div>
-      <div class="mpos-row"><span class="label">IB Ledger Age Reset</span><span class="value green">Day 0 — 72hrs to convert</span></div>
-    </div>
-    <div class="mpos-card">
-      <h3>IB Balance Usage Rules</h3>
-      <div class="fee-breakdown">
-        <div class="fee-row"><span class="fee-label">✅ Facilitate international transfers</span><span class="fee-value">Allowed</span></div>
-        <div class="fee-row"><span class="fee-label">✅ International merchant payments</span><span class="fee-value">Allowed</span></div>
-        <div class="fee-row"><span class="fee-label">✅ Exchange with same-country agents</span><span class="fee-value">0.05% fee</span></div>
-        <div class="fee-row"><span class="fee-label">❌ Local transfers between agents</span><span class="fee-value">Not Allowed</span></div>
-        <div class="fee-row"><span class="fee-label">❌ Cross-border agent IB exchange</span><span class="fee-value">Not Allowed</span></div>
-      </div>
-      <div class="timer-box">
-        <div class="timer-num">72</div>
-        <div class="timer-label">Hours to convert IB to local fiat</div>
-      </div>
-      <div class="fee-breakdown">
-        <div class="fee-row"><span class="fee-label">Convert within 3 days</span><span class="fee-value">0.05% fee</span></div>
-        <div class="fee-row"><span class="fee-label">Auto-convert after 3 days</span><span class="fee-value">0.08% fee</span></div>
-      </div>
-    </div>
-    <button class="mpos-btn" onclick="nextScreen(6)">Assign Recipient Agent →</button>
-  </div>
+    <div class="screen-label">Screen 5 of 11 — Sender Agent Assigned</div>
 
-  <!-- SCREEN 6: RANDOM RECIPIENT AGENT -->
-  <div class="mpos-screen" id="screen6">
-    <div class="mpos-header">
-      <h2>🧑‍💼 Mobile Point of Service (mPOS)</h2>
-      <p>Recipient Agent Assignment — United Kingdom</p>
-    </div>
-    <div class="screen-label">Step 6 of 11 — Recipient Agent Randomly Assigned</div>
     <div class="mpos-card">
-      <h3>Engine Randomly Selecting UK Agent</h3>
-      <div class="security-badge">
+      <h3>What is an Agent?</h3>
+      <div class="info-box info-gold">
+        👤 Agents are accredited bank customers with available liquidity who have consented to participate in the mPOS network. They are not employees or third-party companies. They are verified bank account holders whose liquidity facilitates transactions — and who earn a share of the 1% fee in return.
+      </div>
+    </div>
+
+    <div class="mpos-card">
+      <h3>Real Time Agent Scan — Nigeria</h3>
+      <div class="security-tag">
         🔐 Security Protocol — Random Assignment Active
       </div>
-      <div class="random-pool">
-        <div class="random-pool-title">Eligible UK Agent Pool (qualifying GBP fiat liquidity)</div>
-        <div class="random-agents">
-          <span class="random-agent-pill">UK-001</span>
-          <span class="random-agent-pill">UK-003</span>
-          <span class="random-agent-pill">UK-005</span>
-          <span class="random-agent-pill selected-pill">UK-007 ✓</span>
-          <span class="random-agent-pill">UK-009</span>
-          <span class="random-agent-pill">UK-013</span>
-          <span class="random-agent-pill">UK-015</span>
-          <span class="random-agent-pill">UK-021</span>
-        </div>
+      <div class="info-box info-red">
+        ⚠️ Neither the sending customer nor the agent can select each other. The engine scans all accredited Nigeria agents with qualifying NGN liquidity and a valid IB ledger age at the moment of the transaction — then randomly assigns one. This prevents coordinated attacks, money laundering rings, and agent manipulation.
       </div>
-      <div class="agent-selected" style="margin-top:12px;">
-        <div class="agent-name">✅ System Assigned: Agent UK-007 — London</div>
+      <div class="scan-box">
+        <div class="scan-title">Engine scanning accredited Nigeria agents in real time</div>
+        <div style="font-size:11px;color:#999;">Qualifying criteria: active accreditation + NGN liquidity available + IB ledger age within 3 days</div>
+        <div class="scan-result">✓ Agent Randomly Assigned</div>
+      </div>
+      <div class="agent-assigned">
+        <div class="agent-name">✅ Assigned: Agent NG-004 — Lagos, Nigeria</div>
+        <div class="agent-detail">Accreditation: Active ✓</div>
+        <div class="agent-detail">NGN Liquidity Available: ₦48,500,000</div>
+        <div class="agent-detail">IB Ledger Balance: IB 24,500.00 units</div>
+        <div class="agent-detail">IB Ledger Age: 1 day — within 3-day limit ✓</div>
+        <div class="agent-detail" style="color:#4CAF50;margin-top:6px;">Identity concealed from sending customer ✓</div>
+      </div>
+    </div>
+
+    <button class="mpos-btn" onclick="nextScreen(6)">Execute Sender Agent Entry →</button>
+  </div>
+
+  <!-- SCREEN 6: SENDER AGENT LEDGER -->
+  <div class="mpos-screen" id="screen6">
+    <div class="mpos-header">
+      <h2>SENDER AGENT LEDGER ENTRY</h2>
+      <p>Nigeria — Agent NG-004 Transaction</p>
+    </div>
+    <div class="screen-label">Screen 6 of 11 — Sender Agent Credited & IB Debited</div>
+
+    <div class="mpos-card">
+      <h3>Sender Agent Mechanism</h3>
+      <div class="info-box info-blue">
+        💡 The sender agent receives NGN fiat from Stanbic IBTC on behalf of the customer. In return, the engine debits exactly IB 98.80 from the agent's international ledger balance — mirroring precisely the GBP amount the recipient will receive. The 1.2% fee is distributed separately by the engine.
+      </div>
+    </div>
+
+    <div class="mpos-card">
+      <h3>Agent NG-004 — Ledger Entry</h3>
+      <div class="mpos-row"><span class="label">NGN Fiat Received</span><span class="value green">+ ₦205,000</span></div>
+      <div class="mpos-row"><span class="label">IB Ledger Debited</span><span class="value red">- IB 98.80</span></div>
+      <div class="mpos-row"><span class="label">Previous NGN Balance</span><span class="value">₦48,500,000</span></div>
+      <div class="mpos-row"><span class="label">New NGN Balance</span><span class="value">₦48,705,000</span></div>
+      <div class="mpos-row"><span class="label">Previous IB Balance</span><span class="value">IB 24,500.00</span></div>
+      <div class="mpos-row"><span class="label">New IB Balance</span><span class="value">IB 24,401.20</span></div>
+      <div class="mpos-row"><span class="label">IB Ledger Age Reset</span><span class="value green">Day 0 — 72hrs to convert</span></div>
+      <div class="mpos-row"><span class="label">Entry Status</span><span class="value"><span class="badge badge-green">Posted ✓</span></span></div>
+    </div>
+
+    <div class="mpos-card">
+      <h3>IB Balance — Usage Rules</h3>
+      <div style="background:#f8fafc;border-radius:10px;padding:12px;">
+        <div class="fee-row"><span class="fee-label">✅ Facilitate international transfers</span><span class="fee-value">Allowed</span></div>
+        <div class="fee-row"><span class="fee-label">✅ International merchant payments</span><span class="fee-value">Allowed</span></div>
+        <div class="fee-row"><span class="fee-label">✅ Exchange with same-country agents only</span><span class="fee-value">0.05% fee</span></div>
+        <div class="fee-row"><span class="fee-label">❌ Local transfers between agents</span><span class="fee-value">Blocked</span></div>
+        <div class="fee-row"><span class="fee-label">❌ Cross-border agent IB exchange</span><span class="fee-value">Blocked</span></div>
+      </div>
+      <div class="timer-box" style="margin-top:12px;">
+        <div class="timer-num">72</div>
+        <div class="timer-label">Hours maximum to convert IB back to local fiat</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:10px;padding:12px;">
+        <div class="fee-row"><span class="fee-label">Agent converts within 3 days</span><span class="fee-value">0.05% fee</span></div>
+        <div class="fee-row"><span class="fee-label">Engine auto-converts after 3 days</span><span class="fee-value">0.08% fee</span></div>
+      </div>
+    </div>
+
+    <button class="mpos-btn" onclick="nextScreen(7)">Assign Recipient Agent →</button>
+  </div>
+
+  <!-- SCREEN 7: RECIPIENT AGENT ASSIGNMENT -->
+  <div class="mpos-screen" id="screen7">
+    <div class="mpos-header">
+      <h2>RECIPIENT AGENT ASSIGNMENT</h2>
+      <p>United Kingdom Side — Real Time Random Assignment</p>
+    </div>
+    <div class="screen-label">Screen 7 of 11 — Recipient Agent Assigned</div>
+
+    <div class="mpos-card">
+      <h3>Real Time Agent Scan — United Kingdom</h3>
+      <div class="security-tag">
+        🔐 Security Protocol — Random Assignment Active
+      </div>
+      <div class="info-box info-red">
+        ⚠️ The engine scans all accredited UK agents with qualifying GBP fiat liquidity at the moment of the transaction — then randomly assigns one. UK agents cannot exchange IB directly with Nigeria agents. IB exchange is permitted only between agents within the same country — preventing cross-border accumulation and corridor manipulation.
+      </div>
+      <div class="scan-box">
+        <div class="scan-title">Engine scanning accredited UK agents in real time</div>
+        <div style="font-size:11px;color:#999;">Qualifying criteria: active accreditation + sufficient GBP fiat liquidity for payout</div>
+        <div class="scan-result">✓ Agent Randomly Assigned</div>
+      </div>
+      <div class="agent-assigned">
+        <div class="agent-name">✅ Assigned: Agent UK-007 — London, United Kingdom</div>
+        <div class="agent-detail">Accreditation: Active ✓</div>
         <div class="agent-detail">GBP Fiat Available: £285,000</div>
         <div class="agent-detail">IB Ledger Balance: IB 8,200.00 units</div>
         <div class="agent-detail">IB Ledger Age: 0 days ✓</div>
-        <div class="agent-detail" style="color:#4CAF50;margin-top:4px;">Randomly selected — sufficient GBP fiat for local payout</div>
+        <div class="agent-detail" style="color:#4CAF50;margin-top:6px;">Sufficient GBP liquidity confirmed for local payout ✓</div>
       </div>
     </div>
-    <div class="mpos-card">
-      <h3>Why No Cross-Border IB Exchange?</h3>
-      <div class="info-box-red">
-        ⚠️ UK agents cannot exchange IB directly with Nigeria agents. IB exchange only happens between agents within the same country. This prevents bad actors from buying IB across borders to cause shortages and corridor imbalance.
-      </div>
-    </div>
-    <button class="mpos-btn" onclick="nextScreen(7)">Execute Local Payout →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(8)">Execute Local Payout →</button>
   </div>
 
-  <!-- SCREEN 7: LOCAL PAYOUT -->
-  <div class="mpos-screen" id="screen7">
+  <!-- SCREEN 8: RECIPIENT AGENT LEDGER -->
+  <div class="mpos-screen" id="screen8">
     <div class="mpos-header">
-      <h2>🏦 Mobile Point of Service (mPOS)</h2>
-      <p>Recipient Agent — Local Payout UK</p>
+      <h2>RECIPIENT AGENT — LOCAL PAYOUT</h2>
+      <p>United Kingdom — Agent UK-007 Transaction</p>
     </div>
-    <div class="screen-label">Step 7 of 11 — Recipient Paid Locally</div>
+    <div class="screen-label">Screen 8 of 11 — Local Payout & IB Credited</div>
+
     <div class="mpos-card">
-      <h3>How the Recipient Agent Works</h3>
-      <div class="info-box-blue">
-        💡 The recipient agent pays the recipient locally in GBP fiat from their own liquidity. They are credited exactly IB 98.80 — mirroring the exact fiat they paid out. No money crosses the border in real time.
+      <h3>Recipient Agent Mechanism</h3>
+      <div class="info-box info-blue">
+        💡 The recipient agent pays the recipient locally in GBP fiat from their own liquidity. No money crosses the border. The engine credits the agent exactly IB 98.80 — mirroring precisely what they paid out. The recipient receives funds via local Faster Payments inside the UK banking system.
       </div>
     </div>
+
     <div class="mpos-card">
-      <h3>Agent UK-007 — Transaction Entry</h3>
+      <h3>Agent UK-007 — Ledger Entry</h3>
       <div class="mpos-row"><span class="label">GBP Fiat Paid Out</span><span class="value red">- £98.80</span></div>
       <div class="mpos-row"><span class="label">IB Ledger Credited</span><span class="value green">+ IB 98.80</span></div>
+      <div class="mpos-row"><span class="label">Previous GBP Balance</span><span class="value">£285,000.00</span></div>
       <div class="mpos-row"><span class="label">New GBP Balance</span><span class="value">£284,901.20</span></div>
+      <div class="mpos-row"><span class="label">Previous IB Balance</span><span class="value">IB 8,200.00</span></div>
       <div class="mpos-row"><span class="label">New IB Balance</span><span class="value">IB 8,298.80</span></div>
       <div class="mpos-row"><span class="label">IB Ledger Age</span><span class="value green">Day 0 — 72hrs to convert</span></div>
+      <div class="mpos-row"><span class="label">Entry Status</span><span class="value"><span class="badge badge-green">Posted ✓</span></span></div>
     </div>
+
     <div class="mpos-card">
-      <h3>Recipient Credited</h3>
+      <h3>Recipient Credit Confirmation</h3>
       <div class="flow-step">
         <span class="icon">🏦</span>
-        <div class="text"><strong>Barclays UK — Local Transfer</strong>£98.80 sent via Faster Payments to recipient account</div>
+        <div class="text"><strong>Local Faster Payment Initiated</strong>Agent UK-007 sends £98.80 to Barclays UK via local payment rail</div>
       </div>
       <div class="flow-step">
         <span class="icon">✅</span>
-        <div class="text"><strong>John Adeyemi Credited</strong>Barclays UK — funds received near instantly</div>
+        <div class="text"><strong>John Adeyemi Credited</strong>Barclays UK account — funds received near instantly</div>
+      </div>
+      <div class="flow-step">
+        <span class="icon">📋</span>
+        <div class="text"><strong>DP-TX State Updated</strong>MPOS-2026-00847 → CREDIT CONFIRMED</div>
       </div>
       <div class="mpos-row"><span class="label">Amount Received</span><span class="value green">£98.80</span></div>
-      <div class="mpos-row"><span class="label">Time</span><span class="value green">⚡ Near Instant</span></div>
+      <div class="mpos-row"><span class="label">Settlement Time</span><span class="value green">⚡ Near Instant</span></div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(8)">View Fee Breakdown →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(9)">View Fee Distribution →</button>
   </div>
 
-  <!-- SCREEN 8: FEE BREAKDOWN -->
-  <div class="mpos-screen" id="screen8">
+  <!-- SCREEN 9: FEE DISTRIBUTION -->
+  <div class="mpos-screen" id="screen9">
     <div class="mpos-header">
-      <h2>💰 Mobile Point of Service (mPOS)</h2>
-      <p>Fee Breakdown — 1.2% Total</p>
+      <h2>FEE DISTRIBUTION</h2>
+      <p>Engine Fee — 1.2% Total</p>
     </div>
-    <div class="screen-label">Step 8 of 11 — Fee Distribution</div>
+    <div class="screen-label">Screen 9 of 11 — Fee Breakdown</div>
+
     <div class="mpos-card">
-      <h3>Total Fee on £100 Transaction</h3>
-      <div class="mpos-row"><span class="label">Gross Amount</span><span class="value">£100.00</span></div>
-      <div class="mpos-row"><span class="label">Total Fee (1.2%)</span><span class="value gold">£1.20</span></div>
+      <h3>Transaction Fee Summary</h3>
+      <div class="mpos-row"><span class="label">Gross GBP Amount</span><span class="value">£100.00</span></div>
+      <div class="mpos-row"><span class="label">Engine Fee (1.2%)</span><span class="value gold">£1.20</span></div>
       <div class="mpos-row"><span class="label">Recipient Receives</span><span class="value green">£98.80</span></div>
     </div>
+
     <div class="mpos-card">
-      <h3>Fee Distribution</h3>
-      <div class="info-box-gold">
-        ⚖️ 0.2% is reserved as a liquidity correction buffer in the sender country partner bank. The remaining 1% is shared between both agents, both partner banks, and the mPOS platform.
+      <h3>Fee Allocation — 1.2%</h3>
+      <div class="info-box info-gold">
+        ⚖️ 0.2% is reserved as a liquidity correction buffer held in the sender country partner bank. The remaining 1% is distributed between both agents, both partner banks, and the mPOS platform.
       </div>
-      <div class="fee-breakdown">
+      <div style="background:#f8fafc;border-radius:10px;padding:14px;">
         <div class="fee-row">
-          <span class="fee-label">🏦 Liquidity Buffer — Nigeria partner bank</span>
+          <span class="fee-label">🏦 Liquidity Correction Buffer — Nigeria partner bank</span>
           <span class="fee-value" style="color:#e53935;">0.2% — £0.24</span>
         </div>
         <div class="fee-row">
-          <span class="fee-label">🧑‍💼 Sender Agent NG-004 share</span>
-          <span class="fee-value">from 1% — £1.00</span>
+          <span class="fee-label">🧑‍💼 Sender Agent NG-004</span>
+          <span class="fee-value">share of 1%</span>
         </div>
         <div class="fee-row">
-          <span class="fee-label">🧑‍💼 Recipient Agent UK-007 share</span>
-          <span class="fee-value">from 1% — £1.00</span>
+          <span class="fee-label">🧑‍💼 Recipient Agent UK-007</span>
+          <span class="fee-value">share of 1%</span>
         </div>
         <div class="fee-row">
-          <span class="fee-label">🏦 Partner Banks both sides share</span>
-          <span class="fee-value">from 1% — £1.00</span>
+          <span class="fee-label">🏦 Partner Banks — both sides</span>
+          <span class="fee-value">share of 1%</span>
         </div>
         <div class="fee-row">
-          <span class="fee-label">⚙️ mPOS Platform share</span>
-          <span class="fee-value">from 1% — £1.00</span>
+          <span class="fee-label">⚙️ mPOS Platform</span>
+          <span class="fee-value">share of 1%</span>
         </div>
       </div>
     </div>
+
     <div class="mpos-card">
-      <h3>The 0.2% Liquidity Buffer</h3>
-      <div class="info-box-green">
-        ✅ Reserved locally in Nigeria partner bank. Used to correct corridor imbalance when Nigeria sends significantly more outbound than inbound. If buffer alone is insufficient, PPG OpenMarket activates facilitators on the receiving side to supply liquidity back into the stalling corridor.
+      <h3>The 0.2% Liquidity Correction Buffer</h3>
+      <div class="info-box info-green">
+        ✅ Reserved locally in the Nigeria partner bank. Deployed automatically when corridor imbalance is detected — for example when Nigeria sends significantly more outbound than inbound over a sustained period. If the buffer alone is insufficient, PPG OpenMarket activates facilitators on the receiving side to supply liquidity back into the stalling corridor. This is a multi-layer imbalance correction system.
       </div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(9)">View International Ledger →</button>
+
+    <button class="mpos-btn" onclick="nextScreen(10)">View International Ledger →</button>
   </div>
 
-  <!-- SCREEN 9: INTERNATIONAL LEDGER -->
-  <div class="mpos-screen" id="screen9">
+  <!-- SCREEN 10: INTERNATIONAL LEDGER -->
+  <div class="mpos-screen" id="screen10">
     <div class="mpos-header">
-      <h2>📒 Mobile Point of Service (mPOS)</h2>
-      <p>International Ledger — Balance Sheet</p>
+      <h2>INTERNATIONAL LEDGER</h2>
+      <p>Multi-Corridor Balance Sheet</p>
     </div>
-    <div class="screen-label">Step 9 of 11 — Ledger Update</div>
+    <div class="screen-label">Screen 10 of 11 — Ledger & IB Conversion</div>
+
     <div class="mpos-card">
       <h3>What is the International Ledger?</h3>
-      <div class="info-box-blue">
-        💡 The international ledger is not a pool of money. It is a balance sheet of agent obligations. IB units mirror exactly the fiat paid or received. Agents hold IB temporarily and must convert it back to local fiat within 3 days — keeping value flowing and corridors balanced.
+      <div class="info-box info-blue">
+        💡 The international ledger is not a pool of money. It is a real-time balance sheet of agent obligations across corridors. IB units mirror exactly the fiat paid or received. Agents hold IB temporarily and must convert it back to local fiat within 3 days — keeping value flowing and preventing corridor imbalance.
       </div>
     </div>
+
     <div class="mpos-card">
-      <h3>Ledger Entries — This Transaction</h3>
+      <h3>Ledger Entries — Transaction MPOS-2026-00847</h3>
       <table class="ledger-table">
         <tr>
-          <th>Agent</th>
-          <th>Fiat Movement</th>
-          <th>IB Movement</th>
+          <th>Entity</th>
+          <th>Fiat</th>
+          <th>IB</th>
           <th>Status</th>
         </tr>
         <tr>
-          <td>NG-004 🇳🇬</td>
-          <td style="color:#4CAF50;">+ ₦205,000</td>
-          <td style="color:#e53935;">- IB 98.80</td>
+          <td>Agent NG-004 🇳🇬</td>
+          <td style="color:#4CAF50;">+₦205,000</td>
+          <td style="color:#e53935;">-IB 98.80</td>
           <td><span class="badge badge-green">Posted</span></td>
         </tr>
         <tr>
-          <td>UK-007 🇬🇧</td>
-          <td style="color:#e53935;">- £98.80</td>
-          <td style="color:#4CAF50;">+ IB 98.80</td>
+          <td>Agent UK-007 🇬🇧</td>
+          <td style="color:#e53935;">-£98.80</td>
+          <td style="color:#4CAF50;">+IB 98.80</td>
           <td><span class="badge badge-green">Posted</span></td>
         </tr>
         <tr>
           <td>Buffer 🇳🇬</td>
-          <td style="color:#4CAF50;">+ £0.24</td>
+          <td style="color:#4CAF50;">+£0.24</td>
           <td>—</td>
           <td><span class="badge badge-blue">Reserved</span></td>
         </tr>
         <tr>
-          <td>mPOS + Banks + Agents</td>
-          <td style="color:#4CAF50;">+ £0.96</td>
+          <td>Agents + Banks + Platform</td>
+          <td style="color:#4CAF50;">+£0.96</td>
           <td>—</td>
           <td><span class="badge badge-green">Distributed</span></td>
         </tr>
       </table>
     </div>
+
+    <div class="mpos-card">
+      <h3>IB Conversion — 3 Day Rule</h3>
+      <div class="info-box info-gold">
+        ⚖️ Agent UK-007 holds IB 98.80 units. They must exchange this with another UK agent within 3 days to recover GBP fiat. Exchange is permitted only within the same country — never cross-border. This prevents bad actors from accumulating IB across corridors to cause shortages.
+      </div>
+      <div class="mpos-row"><span class="label">UK-007 exchanges with</span><span class="value">Agent UK-013 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">Conversion Fee</span><span class="value green">0.05% (within 3 days)</span></div>
+      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Converting ✓</span></span></div>
+    </div>
+
     <div class="mpos-card">
       <h3>IB Transferability</h3>
-      <div class="info-box-green">
-        ✅ Agent UK-007's IB 98.80 units are not locked to this corridor. They can facilitate a UK→Germany transfer, pay a merchant internationally, or be exchanged with another UK agent — making IB a global liquidity instrument that flows where it is needed most.
+      <div class="info-box info-green">
+        ✅ Agent UK-007's IB 98.80 units are not locked to the Nigeria–UK corridor. Before converting, they can be used to facilitate a UK→Germany transfer, pay an international merchant, or any cross-border purpose — making IB a global liquidity instrument that flows where it is needed most.
       </div>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(10)">View Agent Conversion →</button>
-  </div>
 
-  <!-- SCREEN 10: AGENT CONVERSION -->
-  <div class="mpos-screen" id="screen10">
-    <div class="mpos-header">
-      <h2>🔄 Mobile Point of Service (mPOS)</h2>
-      <p>Agent IB Conversion — Fiat Recovery</p>
-    </div>
-    <div class="screen-label">Step 10 of 11 — Agents Convert IB to Local Fiat</div>
-    <div class="mpos-card">
-      <h3>Why Agents Must Convert</h3>
-      <div class="info-box-gold">
-        ⚖️ Agents cannot hold IB for more than 3 days. They must exchange with another agent <strong>in the same country only</strong> to convert back to local fiat. Cross-border IB exchange is not permitted — this prevents bad actors from accumulating IB across borders to cause shortages.
-      </div>
-    </div>
-    <div class="mpos-card">
-      <h3>UK Agent UK-007 — Converting IB to GBP</h3>
-      <div class="mpos-row"><span class="label">IB Balance Held</span><span class="value">IB 8,298.80</span></div>
-      <div class="mpos-row"><span class="label">IB Ledger Age</span><span class="value gold">Day 2 — converting now</span></div>
-      <div class="mpos-row"><span class="label">Exchange Partner</span><span class="value">Agent UK-013 🇬🇧 (same country)</span></div>
-      <div class="mpos-row"><span class="label">Conversion Fee</span><span class="value green">0.05% (within 3 days)</span></div>
-      <div class="mpos-row"><span class="label">GBP Recovered</span><span class="value green">+ £4,144.27</span></div>
-      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Converted ✓</span></span></div>
-    </div>
-    <div class="mpos-card">
-      <h3>Auto-Conversion — Penalty Applied</h3>
-      <div class="info-box-red">
-        ⚠️ Agent NG-019 exceeded 3 days without converting. System auto-converts at 0.08% fee to protect the international ledger from stalling and maintain corridor flow.
-      </div>
-      <div class="mpos-row"><span class="label">Auto-Conversion Fee</span><span class="value red">0.08%</span></div>
-      <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-red">Auto-Converted ⚠️</span></span></div>
-    </div>
     <button class="mpos-btn" onclick="nextScreen(11)">View Settlement Complete →</button>
   </div>
 
-  <!-- SCREEN 11: COMPLETE -->
+  <!-- SCREEN 11: SETTLEMENT COMPLETE -->
   <div class="mpos-screen" id="screen11">
     <div class="mpos-header">
-      <h2>✅ Mobile Point of Service (mPOS)</h2>
-      <p>Full Cycle Complete</p>
+      <h2>SETTLEMENT COMPLETE</h2>
+      <p>Full Engine Cycle — MPOS-2026-00847</p>
     </div>
-    <div class="screen-label">Step 11 of 11 — Settlement Complete</div>
-    <div class="big-icon">🎉</div>
+    <div class="screen-label">Screen 11 of 11 — Cycle Complete</div>
+
+    <div class="big-icon">✅</div>
+
     <div class="mpos-card">
       <h3>Transaction Summary</h3>
-      <div class="mpos-row"><span class="label">Reference</span><span class="value">MPOS-2026-00847</span></div>
-      <div class="mpos-row"><span class="label">Sender Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
-      <div class="mpos-row"><span class="label">Recipient Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">DP-TX Reference</span><span class="value">MPOS-2026-00847</span></div>
+      <div class="mpos-row"><span class="label">DP-TX State</span><span class="value"><span class="badge badge-green">SETTLED</span></span></div>
+      <div class="mpos-row"><span class="label">Origin Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
+      <div class="mpos-row"><span class="label">Destination Bank</span><span class="value">Barclays UK 🇬🇧</span></div>
       <div class="mpos-row"><span class="label">Amount Sent</span><span class="value">₦205,000</span></div>
       <div class="mpos-row"><span class="label">Amount Received</span><span class="value green">£98.80</span></div>
       <div class="mpos-row"><span class="label">IB Exchanged</span><span class="value">IB 98.80 units</span></div>
-      <div class="mpos-row"><span class="label">Total Fee</span><span class="value gold">1.2% — £1.20</span></div>
+      <div class="mpos-row"><span class="label">Engine Fee</span><span class="value gold">1.2% — £1.20</span></div>
       <div class="mpos-row"><span class="label">Settlement Time</span><span class="value green">⚡ Near Instant</span></div>
-      <div class="mpos-row"><span class="label">SWIFT Alternative</span><span class="value red">3–5 Business Days</span></div>
+      <div class="mpos-row"><span class="label">SWIFT Equivalent</span><span class="value red">3–5 Business Days</span></div>
     </div>
+
     <div class="mpos-card">
-      <h3>System Health</h3>
+      <h3>Engine System Health</h3>
       <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-      <div class="mpos-row"><span class="label">Tier Limit</span><span class="value"><span class="badge badge-green">✓ Within Limit</span></span></div>
-      <div class="mpos-row"><span class="label">Agents Assigned</span><span class="value"><span class="badge badge-green">✓ Random</span></span></div>
-      <div class="mpos-row"><span class="label">IB Ledger Posted</span><span class="value"><span class="badge badge-green">✓ Done</span></span></div>
-      <div class="mpos-row"><span class="label">IB Converting</span><span class="value"><span class="badge badge-green">✓ On Track</span></span></div>
-      <div class="mpos-row"><span class="label">Buffer Reserved</span><span class="value"><span class="badge badge-green">✓ 0.2% Held</span></span></div>
-      <div class="mpos-row"><span class="label">Corridor Status</span><span class="value"><span class="badge badge-green">Balanced ✓</span></span></div>
+      <div class="status-row"><span class="status-label">Bank API Authenticated</span><span class="badge badge-green">✓ Done</span></div>
+      <div class="status-row"><span class="status-label">Tier Limit Enforced</span><span class="badge badge-green">✓ Within Limit</span></div>
+      <div class="status-row"><span class="status-label">AML Screening</span><span class="badge badge-green">✓ Passed</span></div>
+      <div class="status-row"><span class="status-label">Agents Randomly Assigned</span><span class="badge badge-green">✓ Done</span></div>
+      <div class="status-row"><span class="status-label">IB Ledger Posted</span><span class="badge badge-green">✓ Done</span></div>
+      <div class="status-row"><span class="status-label">IB Converting</span><span class="badge badge-green">✓ On Track</span></div>
+      <div class="status-row"><span class="status-label">0.2% Buffer Reserved</span><span class="badge badge-green">✓ Held</span></div>
+      <div class="status-row"><span class="status-label">Corridor Balance</span><span class="badge badge-green">✓ Stable</span></div>
+      <div class="status-row"><span class="status-label">DP-TX State</span><span class="badge badge-green">✓ SETTLED</span></div>
     </div>
-    <div class="info-box-blue" style="text-align:center;">
-      💡 <strong>No money crossed the border in real time.</strong><br/>
-      Local agents paid locally. IB ledger balanced the obligation.<br/>
-      Agents randomly assigned. Tier limits enforced.<br/>
-      System controlled throughout.<br/><br/>
-      <strong>The mPOS way.</strong>
+
+    <div class="info-box info-blue" style="text-align:center;margin-bottom:15px;">
+      <strong>No money crossed the border in real time.</strong><br/>
+      Local agents paid locally.<br/>
+      International ledger balanced the obligation.<br/>
+      Agents randomly assigned by engine.<br/>
+      Tier limits enforced at system level.<br/><br/>
+      <strong>mPOS — Backend Settlement Infrastructure.</strong><br/>
+      <em style="font-size:11px;">Embedded in banks. Invisible to customers. Powering cross-border settlement.</em>
     </div>
-    <button class="mpos-btn" onclick="nextScreen(1)">▶ Run New Transaction</button>
+
+    <button class="mpos-btn" onclick="nextScreen(1)">▶ Run New Demonstration</button>
   </div>
 
 </div>
@@ -583,9 +730,6 @@
       else if (i === num) dot.className = 'step-dot active';
       else dot.className = 'step-dot';
     }
-  }
-  function updateDisplay(val) {
-    document.getElementById('amountDisplay').textContent = 'NGN ' + Number(val).toLocaleString();
   }
 </script>
 </body>
