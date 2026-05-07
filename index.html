@@ -6,12 +6,20 @@
   <title>mPOS — Mobile Point of Service</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; padding: 20px; }
-    .mpos-wrap { max-width: 420px; margin: 0 auto; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
 
-    .mpos-logo { text-align: center; padding: 24px 0 10px 0; }
-    .mpos-logo-mark { display: inline-block; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #1B4F8C; border-bottom: 3px solid #C9972B; padding-bottom: 4px; }
-    .mpos-logo-sub { font-size: 10px; color: #999; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+    .mpos-logo { background: #1a1a2e; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .mpos-logo-mark { font-size: 22px; font-weight: 900; letter-spacing: 4px; color: white; border-bottom: 3px solid #C9972B; padding-bottom: 3px; }
+    .mpos-logo-sub { font-size: 10px; color: #B8D4F0; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+    .ip-notice { background: #e53935; color: white; font-size: 10px; text-align: center; padding: 8px 16px; line-height: 1.8; letter-spacing: 0.5px; }
+    .disclaimer-bar { background: #1a1a2e; color: #B8D4F0; font-size: 10px; text-align: center; padding: 8px; letter-spacing: 1px; }
+
+    .mpos-wrap { max-width: 420px; margin: 0 auto; padding: 20px; }
+
+    .mpos-logo2 { text-align: center; padding: 16px 0 10px 0; }
+    .mpos-logo-mark2 { display: inline-block; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #1B4F8C; border-bottom: 3px solid #C9972B; padding-bottom: 4px; }
+    .mpos-logo-sub2 { font-size: 10px; color: #999; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
 
     .mpos-header { background: #1B4F8C; color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
     .mpos-header h2 { font-size: 13px; letter-spacing: 1px; margin-bottom: 4px; font-weight: 700; }
@@ -81,21 +89,17 @@
     .timer-label { font-size: 11px; color: #666; margin-top: 4px; }
 
     .screen-label { font-size: 10px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-
     .security-tag { background: #1B4F8C; color: white; padding: 7px 12px; border-radius: 8px; font-size: 11px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
-    .disclaimer { background: #1a1a2e; color: #B8D4F0; border-radius: 10px; padding: 16px; font-size: 11px; line-height: 1.8; margin-bottom: 15px; }
-    .disclaimer strong { color: white; display: block; margin-bottom: 8px; font-size: 12px; letter-spacing: 1px; }
+    .account-display { background: #1B4F8C; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .account-label { font-size: 10px; color: #B8D4F0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+    .account-value { font-size: 20px; font-weight: bold; color: white; }
+    .account-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0; }
+    .account-sub { font-size: 10px; color: #B8D4F0; margin-top: 3px; }
 
     .scan-box { background: #f8fafc; border: 1px dashed #1B4F8C; border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 12px; }
     .scan-box .scan-title { font-size: 11px; color: #666; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
     .scan-result { display: inline-block; background: #1B4F8C; color: white; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: bold; margin-top: 8px; }
-
-    .account-display { background: #1B4F8C; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .account-display .account-label { font-size: 10px; color: #B8D4F0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-    .account-display .account-value { font-size: 20px; font-weight: bold; color: white; }
-    .account-display .account-sub { font-size: 10px; color: #B8D4F0; margin-top: 4px; }
-    .account-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0; }
 
     .big-icon { font-size: 48px; text-align: center; margin: 12px 0; }
     .center { text-align: center; }
@@ -113,15 +117,30 @@
   </style>
 </head>
 <body>
-<div class="mpos-wrap">
 
-  <!-- LOGO -->
-  <div class="mpos-logo">
+<!-- HEADER -->
+<div class="mpos-logo">
+  <div>
     <div class="mpos-logo-mark">mPOS</div>
     <div class="mpos-logo-sub">Mobile Point of Service</div>
   </div>
+</div>
 
-  <!-- STEP DOTS -->
+<!-- IP NOTICE -->
+<div class="ip-notice">
+  ⚠️ INTELLECTUAL PROPERTY NOTICE: This demonstration is the proprietary and confidential property of Vershima Solomon Kwaghshi / PLeNat Technologies. All concepts, mechanics, system logic, and processes demonstrated herein are protected intellectual property. Viewing this demonstration does not constitute permission to reproduce, replicate, derive, or commercialise any concept, system, or process shown. Unauthorised use is a violation of intellectual property law.
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer-bar">BACKEND INFRASTRUCTURE DEMONSTRATION — NOT A CONSUMER APPLICATION</div>
+
+<div class="mpos-wrap">
+
+  <div class="mpos-logo2">
+    <div class="mpos-logo-mark2">mPOS</div>
+    <div class="mpos-logo-sub2">Mobile Point of Service</div>
+  </div>
+
   <div class="step-indicator">
     <div class="step-dot active" id="dot1"></div>
     <div class="step-dot" id="dot2"></div>
@@ -143,14 +162,11 @@
       <p>Settlement & Execution Engine — Technical Overview</p>
     </div>
     <div class="screen-label">Screen 1 of 11 — System Overview</div>
-
-    <div class="disclaimer">
-      <strong>⚠️ INFRASTRUCTURE NOTICE</strong>
-      mPOS is not a consumer application. It is a backend settlement and execution infrastructure embedded directly into bank systems — similar to how Visa and Mastercard operate as invisible rails inside banking platforms. Customers never interact with mPOS directly. Banks embed mPOS into their own mobile banking apps and core banking systems. What follows is a technical demonstration of the mPOS engine as seen from the bank and system perspective.
-    </div>
-
     <div class="mpos-card">
       <h3>What mPOS Does</h3>
+      <div class="info-box info-blue">
+        ⚠️ mPOS is not a consumer application. It is backend settlement infrastructure embedded directly into bank systems — similar to how Visa and Mastercard operate as invisible rails inside banking platforms. Customers never interact with mPOS directly.
+      </div>
       <div class="flow-step">
         <span class="icon">🏦</span>
         <div class="text"><strong>Bank-Embedded Settlement Rail</strong>mPOS sits inside bank infrastructure. The customer sees their bank. The bank uses mPOS.</div>
@@ -172,7 +188,6 @@
         <div class="text"><strong>Shared Technical Responsibility</strong>mPOS works alongside bank technical teams. Users with cross-border issues are directed to the mPOS technical support team for faster resolution — shared accountability, not single-bank liability.</div>
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Live Demonstration Parameters</h3>
       <div class="mpos-row"><span class="label">Origin Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
@@ -182,7 +197,6 @@
       <div class="mpos-row"><span class="label">Settlement</span><span class="value green">⚡ Near Instant</span></div>
       <div class="mpos-row"><span class="label">SWIFT Alternative</span><span class="value red">3–5 Business Days</span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(2)">Start Engine Demonstration →</button>
   </div>
 
@@ -193,14 +207,12 @@
       <p>Stanbic IBTC Nigeria → mPOS Engine</p>
     </div>
     <div class="screen-label">Screen 2 of 11 — Bank Sends Instruction</div>
-
     <div class="mpos-card">
       <h3>How It Starts</h3>
       <div class="info-box info-blue">
         💡 A Stanbic IBTC customer initiates an international transfer inside their bank app. Stanbic IBTC authenticates the customer using its own KYC system, then sends a structured API instruction to the mPOS engine. The customer never sees or interacts with mPOS directly.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>API Instruction — Stanbic IBTC → mPOS</h3>
       <div class="flow-step">
@@ -220,7 +232,6 @@
         <div class="text"><strong>Instruction Parameters Received</strong>Amount, corridor, recipient details, bank authentication token</div>
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Request Parameters</h3>
       <div class="mpos-row"><span class="label">Origin Bank</span><span class="value">Stanbic IBTC 🇳🇬</span></div>
@@ -231,7 +242,6 @@
       <div class="mpos-row"><span class="label">Auth Token</span><span class="value"><span class="badge badge-green">Valid ✓</span></span></div>
       <div class="mpos-row"><span class="label">Request Status</span><span class="value"><span class="badge badge-gold">Received</span></span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(3)">Engine Processes Request →</button>
   </div>
 
@@ -242,45 +252,22 @@
       <p>Bank-Approved Transaction Controls</p>
     </div>
     <div class="screen-label">Screen 3 of 11 — Tier Limit Check</div>
-
     <div class="mpos-card">
       <h3>Why Tier Limits Exist</h3>
       <div class="info-box info-gold">
         ⚖️ Transaction limits are set per customer tier and approved by their bank. Limits are enforced at the mPOS engine level to manage corridor balance, comply with CBN regulatory requirements, and control arbitration exposure. Higher tiers require bank approval and enhanced identity verification.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Bank-Defined Tier Structure</h3>
       <table class="tier-table">
-        <tr>
-          <th>Tier</th>
-          <th>Daily Limit</th>
-          <th>Bank Approval</th>
-        </tr>
-        <tr>
-          <td>Tier 1</td>
-          <td>£500 / day</td>
-          <td>Basic KYC</td>
-        </tr>
-        <tr class="active-row">
-          <td>Tier 2 ← This customer</td>
-          <td>£2,000 / day</td>
-          <td>Enhanced KYC</td>
-        </tr>
-        <tr>
-          <td>Tier 3</td>
-          <td>£10,000 / day</td>
-          <td>Full approval</td>
-        </tr>
-        <tr>
-          <td>Corporate</td>
-          <td>Custom</td>
-          <td>Bank + mPOS</td>
-        </tr>
+        <tr><th>Tier</th><th>Daily Limit</th><th>Bank Approval</th></tr>
+        <tr><td>Tier 1</td><td>£500 / day</td><td>Basic KYC</td></tr>
+        <tr class="active-row"><td>Tier 2 ← This customer</td><td>£2,000 / day</td><td>Enhanced KYC</td></tr>
+        <tr><td>Tier 3</td><td>£10,000 / day</td><td>Full approval</td></tr>
+        <tr><td>Corporate</td><td>Custom</td><td>Bank + mPOS</td></tr>
       </table>
     </div>
-
     <div class="mpos-card">
       <h3>Engine Tier Check — This Transaction</h3>
       <div class="mpos-row"><span class="label">Customer Tier</span><span class="value"><span class="badge badge-blue">Tier 2</span></span></div>
@@ -290,7 +277,6 @@
       <div class="mpos-row"><span class="label">Remaining After</span><span class="value green">£1,900.00</span></div>
       <div class="mpos-row"><span class="label">Limit Status</span><span class="value"><span class="badge badge-green">Within Limit ✓</span></span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(4)">Engine Validates Transaction →</button>
   </div>
 
@@ -301,7 +287,6 @@
       <p>mPOS Core Engine — Transaction Processing</p>
     </div>
     <div class="screen-label">Screen 4 of 11 — Engine Validates & Locks</div>
-
     <div class="mpos-card">
       <h3>Engine Validation Sequence</h3>
       <div class="flow-step">
@@ -327,7 +312,6 @@
       <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
       <div class="center" style="font-size:11px;color:#999;">Engine processing — validation complete</div>
     </div>
-
     <div class="mpos-card">
       <h3>Validated Transaction Parameters</h3>
       <div class="mpos-row"><span class="label">Transaction Reference</span><span class="value">MPOS-2026-00847</span></div>
@@ -338,37 +322,31 @@
       <div class="mpos-row"><span class="label">Corridor</span><span class="value">Nigeria 🇳🇬 → UK 🇬🇧</span></div>
       <div class="mpos-row"><span class="label">Validation Status</span><span class="value"><span class="badge badge-green">Approved ✓</span></span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(5)">Assign Sender Agent →</button>
   </div>
 
-  <!-- SCREEN 5: SENDER AGENT ASSIGNMENT -->
+  <!-- SCREEN 5: SENDER AGENT -->
   <div class="mpos-screen" id="screen5">
     <div class="mpos-header">
       <h2>SENDER AGENT ASSIGNMENT</h2>
       <p>Nigeria Side — Real Time Scan & Random Assignment</p>
     </div>
     <div class="screen-label">Screen 5 of 11 — Sender Agent Assigned</div>
-
     <div class="mpos-card">
       <h3>What is an Agent?</h3>
       <div class="info-box info-gold">
-        👤 Agents are accredited bank customers with available liquidity who have consented to participate in the mPOS network. They are not employees or external companies. They are verified bank account holders whose liquidity facilitates transactions — and who earn a share of the 1% fee in return.
+        👤 Agents are accredited bank customers with available liquidity who have consented to participate in the mPOS network. They are not employees or external companies. They earn a share of the 1% fee per transaction.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>What the Engine Checks — Sender Side</h3>
       <div class="info-box info-blue">
-        💡 For the sender agent, the engine queries and locks the agent's <strong>international ledger balance only</strong> — confirming they have sufficient ledger value to facilitate this transaction. The engine does not check their savings or current account fiat at this stage.
+        💡 For the sender agent, the engine queries and locks the agent's <strong>international ledger balance only</strong> — confirming they have sufficient ledger value to facilitate this transaction.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Real Time Scan — Nigeria</h3>
-      <div class="security-tag">
-        🔐 Security Protocol — Random Assignment Active
-      </div>
+      <div class="security-tag">🔐 Security Protocol — Random Assignment Active</div>
       <div class="info-box info-red">
         ⚠️ Neither the sending customer nor the agent can select each other. The engine scans accredited Nigeria agents with a qualifying international ledger balance at the moment of the transaction — then randomly assigns one. This ensures ledger value stays in active circulation and prevents coordinated transaction routing.
       </div>
@@ -386,11 +364,10 @@
         <div class="agent-detail" style="color:#4CAF50;margin-top:6px;">Identity concealed from sending customer ✓</div>
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Agent Account View — Stanbic IBTC App</h3>
       <div class="info-box info-blue">
-        💡 This is how the ledger balance appears to the agent inside their normal bank app — no separate app, no foreign currency symbol, no crypto-style display. Just a standard account line beside their existing accounts.
+        💡 This is how the ledger balance appears to the agent inside their normal bank app — no separate app, no foreign currency symbol. Just a standard account line beside their existing accounts.
       </div>
       <div class="account-display">
         <div class="account-label">Savings Account</div>
@@ -401,7 +378,6 @@
         <div class="account-sub">Available for international transactions only</div>
       </div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(6)">Execute Sender Agent Entry →</button>
   </div>
 
@@ -412,14 +388,12 @@
       <p>Nigeria — Agent NG-004 Transaction</p>
     </div>
     <div class="screen-label">Screen 6 of 11 — Sender Agent Credited & Ledger Debited</div>
-
     <div class="mpos-card">
       <h3>Sender Agent Mechanism</h3>
       <div class="info-box info-blue">
-        💡 The sender agent receives NGN fiat from Stanbic IBTC on behalf of the customer — credited to their savings account. In return, the engine debits exactly ₦98.80 from their international ledger balance — mirroring precisely the GBP equivalent the recipient will receive. The ledger value is the same currency, same value — recorded separately for international use only.
+        💡 The sender agent receives NGN fiat from Stanbic IBTC on behalf of the customer — credited to their savings account. In return, the engine debits exactly ₦205,000 from their international ledger balance. The ledger value is the same currency, same value — recorded separately for international use only.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Agent NG-004 — Ledger Entry</h3>
       <div class="mpos-row"><span class="label">Savings Account Credited</span><span class="value green">+ ₦205,000</span></div>
@@ -431,7 +405,6 @@
       <div class="mpos-row"><span class="label">Ledger Age Reset</span><span class="value green">Day 0 — 72hrs to convert</span></div>
       <div class="mpos-row"><span class="label">Entry Status</span><span class="value"><span class="badge badge-green">Posted ✓</span></span></div>
     </div>
-
     <div class="mpos-card">
       <h3>Ledger Balance — Key Rules</h3>
       <div style="background:#f8fafc;border-radius:10px;padding:12px;">
@@ -450,32 +423,27 @@
         <div class="fee-row"><span class="fee-label">Engine auto-converts after 3 days</span><span class="fee-value">0.08% fee</span></div>
       </div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(7)">Assign Recipient Agent →</button>
   </div>
 
-  <!-- SCREEN 7: RECIPIENT AGENT ASSIGNMENT -->
+  <!-- SCREEN 7: RECIPIENT AGENT -->
   <div class="mpos-screen" id="screen7">
     <div class="mpos-header">
       <h2>RECIPIENT AGENT ASSIGNMENT</h2>
       <p>United Kingdom Side — Real Time Scan & Random Assignment</p>
     </div>
     <div class="screen-label">Screen 7 of 11 — Recipient Agent Assigned</div>
-
     <div class="mpos-card">
       <h3>What the Engine Checks — Recipient Side</h3>
       <div class="info-box info-blue">
-        💡 For the recipient agent, the engine queries and locks the agent's <strong>GBP fiat liquidity only</strong> — confirming they have sufficient fiat to pay the recipient locally. The engine does not check their international ledger balance at this stage.
+        💡 For the recipient agent, the engine queries and locks the agent's <strong>GBP fiat liquidity only</strong> — confirming they have sufficient fiat to pay the recipient locally.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Real Time Scan — United Kingdom</h3>
-      <div class="security-tag">
-        🔐 Security Protocol — Random Assignment Active
-      </div>
+      <div class="security-tag">🔐 Security Protocol — Random Assignment Active</div>
       <div class="info-box info-red">
-        ⚠️ The engine scans accredited UK agents with sufficient GBP fiat liquidity at the moment of the transaction — then randomly assigns one. Ledger exchange is permitted only between agents within the same country — keeping ledger value in active circulation across the UK agent network and preventing cross-border accumulation.
+        ⚠️ The engine scans accredited UK agents with sufficient GBP fiat liquidity at the moment of the transaction — then randomly assigns one. Ledger exchange is permitted only between agents within the same country — keeping ledger value in active circulation across the UK agent network.
       </div>
       <div class="scan-box">
         <div class="scan-title">Engine scanning accredited UK agents in real time</div>
@@ -485,17 +453,13 @@
       <div class="agent-assigned">
         <div class="agent-name">✅ Assigned: Agent UK-007 — London, United Kingdom</div>
         <div class="agent-detail">Accreditation: Active ✓</div>
-        <div class="agent-detail">GBP Fiat Liquidity: £285,000.00</div>
+        <div class="agent-detail">GBP Fiat Available: £285,000</div>
         <div class="agent-detail">Fiat Locked for Payout: £98.80 ✓</div>
         <div class="agent-detail" style="color:#4CAF50;margin-top:6px;">Sufficient GBP fiat confirmed and locked ✓</div>
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Agent Account View — Barclays UK App</h3>
-      <div class="info-box info-blue">
-        💡 The same clean account display — no foreign symbols, no separate app. The international ledger appears as a standard account line beside their existing Barclays accounts.
-      </div>
       <div class="account-display">
         <div class="account-label">Current Account</div>
         <div class="account-value">£285,000.00</div>
@@ -505,25 +469,22 @@
         <div class="account-sub">Available for international transactions only</div>
       </div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(8)">Execute Local Payout →</button>
   </div>
 
-  <!-- SCREEN 8: RECIPIENT AGENT PAYOUT -->
+  <!-- SCREEN 8: LOCAL PAYOUT -->
   <div class="mpos-screen" id="screen8">
     <div class="mpos-header">
       <h2>RECIPIENT AGENT — LOCAL PAYOUT</h2>
       <p>United Kingdom — Agent UK-007 Transaction</p>
     </div>
     <div class="screen-label">Screen 8 of 11 — Local Payout & Ledger Credited</div>
-
     <div class="mpos-card">
       <h3>Recipient Agent Mechanism</h3>
       <div class="info-box info-blue">
         💡 The recipient agent pays the recipient locally in GBP fiat from their current account. The engine credits their international ledger with exactly £98.80 — mirroring precisely what they paid out. No money crosses the border. The recipient receives funds via the UK local payment system.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Agent UK-007 — Ledger Entry</h3>
       <div class="mpos-row"><span class="label">GBP Fiat Paid Out</span><span class="value red">- £98.80</span></div>
@@ -535,7 +496,6 @@
       <div class="mpos-row"><span class="label">Ledger Age</span><span class="value green">Day 0 — 72hrs to convert</span></div>
       <div class="mpos-row"><span class="label">Entry Status</span><span class="value"><span class="badge badge-green">Posted ✓</span></span></div>
     </div>
-
     <div class="mpos-card">
       <h3>Recipient Credit Confirmation</h3>
       <div class="flow-step">
@@ -553,7 +513,6 @@
       <div class="mpos-row"><span class="label">Amount Received</span><span class="value green">£98.80</span></div>
       <div class="mpos-row"><span class="label">Settlement Time</span><span class="value green">⚡ Near Instant</span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(9)">View Fee Distribution →</button>
   </div>
 
@@ -564,85 +523,58 @@
       <p>Engine Fee — 1.2% Total</p>
     </div>
     <div class="screen-label">Screen 9 of 11 — Fee Breakdown</div>
-
     <div class="mpos-card">
       <h3>Transaction Fee Summary</h3>
       <div class="mpos-row"><span class="label">Gross GBP Amount</span><span class="value">£100.00</span></div>
       <div class="mpos-row"><span class="label">Engine Fee (1.2%)</span><span class="value gold">£1.20</span></div>
       <div class="mpos-row"><span class="label">Recipient Receives</span><span class="value green">£98.80</span></div>
     </div>
-
     <div class="mpos-card">
       <h3>Fee Allocation — 1.2%</h3>
       <div class="info-box info-gold">
         ⚖️ 0.2% is reserved as a liquidity correction buffer held locally in the sender country partner bank. The remaining 1% is distributed between both agents, both partner banks, and the mPOS platform.
       </div>
       <div style="background:#f8fafc;border-radius:10px;padding:14px;">
-        <div class="fee-row">
-          <span class="fee-label">🏦 Liquidity Correction Buffer — Nigeria partner bank</span>
-          <span class="fee-value" style="color:#e53935;">0.2% — £0.24</span>
-        </div>
-        <div class="fee-row">
-          <span class="fee-label">🧑‍💼 Sender Agent NG-004</span>
-          <span class="fee-value">share of 1%</span>
-        </div>
-        <div class="fee-row">
-          <span class="fee-label">🧑‍💼 Recipient Agent UK-007</span>
-          <span class="fee-value">share of 1%</span>
-        </div>
-        <div class="fee-row">
-          <span class="fee-label">🏦 Partner Banks — both sides</span>
-          <span class="fee-value">share of 1%</span>
-        </div>
-        <div class="fee-row">
-          <span class="fee-label">⚙️ mPOS Platform</span>
-          <span class="fee-value">share of 1%</span>
-        </div>
+        <div class="fee-row"><span class="fee-label">🏦 Liquidity Correction Buffer — Nigeria partner bank</span><span class="fee-value" style="color:#e53935;">0.2% — £0.24</span></div>
+        <div class="fee-row"><span class="fee-label">🧑‍💼 Sender Agent NG-004</span><span class="fee-value">share of 1%</span></div>
+        <div class="fee-row"><span class="fee-label">🧑‍💼 Recipient Agent UK-007</span><span class="fee-value">share of 1%</span></div>
+        <div class="fee-row"><span class="fee-label">🏦 Partner Banks — both sides</span><span class="fee-value">share of 1%</span></div>
+        <div class="fee-row"><span class="fee-label">⚙️ mPOS Platform</span><span class="fee-value">share of 1%</span></div>
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>The 0.2% Liquidity Correction Buffer</h3>
       <div class="info-box info-green">
-        ✅ Reserved locally in the Nigeria partner bank. Deployed automatically when corridor imbalance is detected — for example when Nigeria sends significantly more outbound than inbound over a sustained period. If the buffer alone is insufficient, the PPG OpenMarket layer activates liquidity facilitators on the receiving side to supply liquidity back into the stalling corridor.
+        ✅ Reserved locally in the Nigeria partner bank. Deployed automatically when corridor imbalance is detected. If the buffer alone is insufficient, the PPG OpenMarket layer activates liquidity facilitators on the receiving side to supply liquidity back into the stalling corridor.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Technical Support Model</h3>
       <div class="support-box">
         <strong>🤝 Shared Technical Responsibility</strong>
-        For cross-border transaction issues, partner banks direct users to the mPOS technical support team for faster and more accurate resolution. mPOS has direct visibility of the full transaction lifecycle across both corridors — enabling quicker diagnosis than either bank has independently. mPOS works alongside bank technical teams where necessary. This is a shared accountability model — not a single-bank liability structure.
+        For cross-border transaction issues, partner banks direct users to the mPOS technical support team for faster resolution. mPOS has direct visibility of the full transaction lifecycle across both corridors. mPOS works alongside bank technical teams where necessary — shared accountability, not single-bank liability.
       </div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(10)">View Ledger & Conversion →</button>
   </div>
 
-  <!-- SCREEN 10: LEDGER & CONVERSION -->
+  <!-- SCREEN 10: LEDGER -->
   <div class="mpos-screen" id="screen10">
     <div class="mpos-header">
       <h2>LEDGER & CONVERSION</h2>
       <p>International Ledger — Balance & 3-Day Cycle</p>
     </div>
     <div class="screen-label">Screen 10 of 11 — Ledger Update & Agent Conversion</div>
-
     <div class="mpos-card">
       <h3>What is the International Ledger?</h3>
       <div class="info-box info-blue">
-        💡 The international ledger is an internal accounting record — not a separate currency, not a pool of money. Ledger balances are denominated in the agent's own local currency, appear in their normal bank account view, and exist solely for facilitating international transactions. The value never leaves the country. It is recorded permanently in the ledger — but the balance is consumed as transactions are facilitated and must be replenished.
+        💡 The international ledger is an internal accounting record — not a separate currency, not a pool of money. Ledger balances are denominated in the agent's own local currency and exist solely for facilitating international transactions. The value never leaves the country — it is consumed as transactions are facilitated and must be replenished.
       </div>
     </div>
-
     <div class="mpos-card">
       <h3>Ledger Entries — Transaction MPOS-2026-00847</h3>
       <table class="ledger-table">
-        <tr>
-          <th>Entity</th>
-          <th>Fiat Movement</th>
-          <th>Ledger Movement</th>
-          <th>Status</th>
-        </tr>
+        <tr><th>Entity</th><th>Fiat</th><th>Ledger</th><th>Status</th></tr>
         <tr>
           <td>Agent NG-004 🇳🇬</td>
           <td style="color:#4CAF50;">+₦205,000</td>
@@ -669,40 +601,35 @@
         </tr>
       </table>
     </div>
-
     <div class="mpos-card">
       <h3>Agent Ledger Conversion — 3 Day Cycle</h3>
       <div class="info-box info-gold">
-        ⚖️ Agents must convert their ledger balance back to local fiat within 3 days — by exchanging with another agent within the same country. This keeps ledger value in active circulation across the agent network and prevents the corridor from stalling.
+        ⚖️ Agents must convert their ledger balance back to local fiat within 3 days — by exchanging with another agent within the same country only. This keeps ledger value in active circulation across the agent network and prevents the corridor from stalling.
       </div>
-      <div class="mpos-row"><span class="label">UK-007 exchanges with</span><span class="value">Agent UK-013 🇬🇧</span></div>
+      <div class="mpos-row"><span class="label">UK-007 exchanges with</span><span class="value">Agent UK-013 🇬🇧 (same country)</span></div>
       <div class="mpos-row"><span class="label">Conversion Fee</span><span class="value green">0.05% (within 3 days)</span></div>
       <div class="mpos-row"><span class="label">GBP Fiat Recovered</span><span class="value green">£98.75 (after fee)</span></div>
       <div class="mpos-row"><span class="label">Status</span><span class="value"><span class="badge badge-green">Converting ✓</span></span></div>
     </div>
-
     <div class="mpos-card">
       <h3>Auto-Conversion — Penalty Applied</h3>
       <div class="info-box info-red">
-        ⚠️ If an agent fails to convert within 3 days, the engine automatically converts their ledger balance at a higher fee — protecting the corridor from stalling and keeping ledger value in circulation.
+        ⚠️ If an agent fails to convert within 3 days, the engine automatically converts their ledger balance at a higher fee — protecting the corridor from stalling and keeping ledger value in active circulation.
       </div>
       <div class="mpos-row"><span class="label">Auto-Conversion Fee</span><span class="value red">0.08%</span></div>
       <div class="mpos-row"><span class="label">Trigger</span><span class="value red">After 72 hours — automatic</span></div>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(11)">View Settlement Complete →</button>
   </div>
 
-  <!-- SCREEN 11: SETTLEMENT COMPLETE -->
+  <!-- SCREEN 11: COMPLETE -->
   <div class="mpos-screen" id="screen11">
     <div class="mpos-header">
       <h2>SETTLEMENT COMPLETE</h2>
       <p>Full Engine Cycle — MPOS-2026-00847</p>
     </div>
     <div class="screen-label">Screen 11 of 11 — Cycle Complete</div>
-
     <div class="big-icon">✅</div>
-
     <div class="mpos-card">
       <h3>Transaction Summary</h3>
       <div class="mpos-row"><span class="label">Reference</span><span class="value">MPOS-2026-00847</span></div>
@@ -715,7 +642,6 @@
       <div class="mpos-row"><span class="label">Settlement Time</span><span class="value green">⚡ Near Instant</span></div>
       <div class="mpos-row"><span class="label">SWIFT Alternative</span><span class="value red">3–5 Business Days</span></div>
     </div>
-
     <div class="mpos-card">
       <h3>Engine System Health</h3>
       <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
@@ -730,7 +656,6 @@
       <div class="status-row"><span class="status-label">0.2% Buffer Reserved</span><span class="badge badge-green">✓</span></div>
       <div class="status-row"><span class="status-label">Corridor Balance</span><span class="badge badge-green">✓ Stable</span></div>
     </div>
-
     <div class="closing-box">
       <strong>mPOS — Mobile Point of Service</strong>
       No money crossed the border in real time.<br/>
@@ -740,7 +665,6 @@
       Tier limits enforced at system level.<br/>
       <em>Backend Settlement Infrastructure — Embedded in banks. Invisible to customers. Powering cross-border settlement.</em>
     </div>
-
     <button class="mpos-btn" onclick="nextScreen(1)">▶ Run New Demonstration</button>
   </div>
 
