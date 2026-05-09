@@ -1,1054 +1,156 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>mPOS — Mobile Point of Service</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
-
-    /* HEADER */
-    .top-bar { background: #1a1a2e; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
-    .logo-mark { font-size: 20px; font-weight: 900; letter-spacing: 4px; color: white; border-bottom: 3px solid #C9972B; padding-bottom: 3px; }
-    .logo-sub { font-size: 9px; color: #B8D4F0; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-    .live-badge { font-size: 11px; color: #4CAF50; background: rgba(76,175,80,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid #4CAF50; }
-
-    /* ACCESS GATE */
-    .gate-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: #f0f4f8; }
-    .gate-box { background: white; border-radius: 16px; padding: 28px 24px; max-width: 420px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-    .gate-logo { text-align: center; margin-bottom: 20px; }
-    .gate-logo-mark { font-size: 28px; font-weight: 900; letter-spacing: 5px; color: #1B4F8C; border-bottom: 3px solid #C9972B; padding-bottom: 4px; display: inline-block; }
-    .gate-logo-sub { font-size: 10px; color: #999; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
-    .gate-title { font-size: 14px; font-weight: bold; color: #1B4F8C; text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
-    .gate-subtitle { font-size: 12px; color: #666; text-align: center; margin-bottom: 20px; line-height: 1.6; }
-    .gate-input-group { margin-bottom: 12px; }
-    .gate-input-group label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
-    .gate-input-group input, .gate-input-group select { width: 100%; padding: 11px 14px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; background: white; }
-    .gate-input-group input:focus, .gate-input-group select:focus { outline: none; border-color: #1B4F8C; }
-    .gate-ack { background: #f8fafc; border-radius: 10px; padding: 14px; margin-bottom: 16px; }
-    .gate-ack-title { font-size: 11px; font-weight: bold; color: #1B4F8C; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .gate-ack-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; font-size: 11px; color: #444; line-height: 1.5; }
-    .gate-ack-item input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; }
-    .ip-notice-gate { background: #1a1a2e; border-radius: 10px; padding: 14px; margin-bottom: 16px; font-size: 11px; color: #B8D4F0; line-height: 1.7; }
-    .ip-notice-gate strong { color: white; display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 1px; }
-    .gate-btn { width: 100%; padding: 14px; background: #1B4F8C; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-    .gate-btn:hover { background: #C9972B; }
-    .gate-error { color: #e53935; font-size: 11px; text-align: center; margin-top: 10px; display: none; }
-    .gate-success { text-align: center; padding: 20px; display: none; }
-    .gate-success .s-icon { font-size: 48px; margin-bottom: 12px; }
-    .gate-success .s-title { font-size: 16px; font-weight: bold; color: #1B4F8C; margin-bottom: 8px; }
-    .gate-success .s-sub { font-size: 12px; color: #666; margin-bottom: 16px; line-height: 1.6; }
-    .session-box { background: #e3f0fb; border-radius: 10px; padding: 12px; font-size: 12px; color: #1B4F8C; margin-bottom: 16px; }
-    .session-id { font-size: 14px; font-weight: bold; letter-spacing: 2px; margin-top: 4px; }
-
-    /* SESSION BAR */
-    .session-bar { background: #1B4F8C; color: #B8D4F0; font-size: 10px; text-align: center; padding: 6px; letter-spacing: 1px; }
-    .info-bar { background: #1a1a2e; color: #B8D4F0; font-size: 10px; text-align: center; padding: 7px; letter-spacing: 1px; }
-
-    /* NAV */
-    .mpos-nav { background: #1B4F8C; display: flex; overflow-x: auto; }
-    .mpos-nav button { padding: 12px 16px; background: none; border: none; color: #B8D4F0; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; letter-spacing: 1px; border-bottom: 3px solid transparent; }
-    .mpos-nav button.active { color: white; border-bottom: 3px solid #C9972B; }
-    .mpos-nav button:hover { color: white; }
-
-    /* PANELS */
-    .panel { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
-    .panel.active { display: block; }
-
-    /* CARDS */
-    .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .card h3 { font-size: 11px; color: #1B4F8C; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f0f4f8; padding-bottom: 8px; margin-bottom: 14px; }
-
-    /* INPUTS */
-    .input-group { margin-bottom: 11px; }
-    .input-group label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
-    .input-group input, .input-group select { width: 100%; padding: 11px 14px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; background: white; }
-    .input-group input:focus, .input-group select:focus { outline: none; border-color: #1B4F8C; }
-
-    /* DATA ROWS */
-    .data-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 7px; font-size: 12px; }
-    .data-row .lbl { color: #666; }
-    .data-row .val { font-weight: bold; color: #1B4F8C; }
-    .data-row .val.green { color: #4CAF50; }
-    .data-row .val.gold { color: #C9972B; }
-    .data-row .val.red { color: #e53935; }
-
-    /* BADGES */
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-    .badge-green { background: #e8f5e9; color: #4CAF50; }
-    .badge-gold { background: #fff8e1; color: #C9972B; }
-    .badge-blue { background: #e3f0fb; color: #1B4F8C; }
-    .badge-red { background: #fce4ec; color: #e53935; }
-
-    /* BUTTONS */
-    .btn { width: 100%; padding: 13px; background: #1B4F8C; color: white; border: none; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
-    .btn:hover { background: #C9972B; }
-    .btn-gold { background: #C9972B; }
-    .btn-gold:hover { background: #1B4F8C; }
-
-    /* INFO BOXES */
-    .info-box { padding: 11px; border-radius: 8px; font-size: 11px; margin-bottom: 11px; line-height: 1.7; }
-    .info-blue { background: #e3f0fb; border-left: 4px solid #1B4F8C; color: #1B4F8C; }
-    .info-gold { background: #fff8e1; border-left: 4px solid #C9972B; color: #555; }
-    .info-green { background: #f1f8f1; border-left: 4px solid #4CAF50; color: #333; }
-    .info-red { background: #fce4ec; border-left: 4px solid #e53935; color: #333; }
-
-    /* AMOUNT DISPLAY */
-    .amount-display { text-align: center; padding: 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 11px; }
-    .amount-main { font-size: 26px; font-weight: bold; color: #1B4F8C; }
-    .amount-sub { font-size: 11px; color: #999; margin-top: 4px; }
-
-    /* TIER BAR */
-    .tier-bar { background: #f0f4f8; border-radius: 10px; padding: 11px; margin-bottom: 11px; }
-    .tier-bar-label { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-bottom: 5px; }
-    .tier-bar-track { background: #e0e0e0; border-radius: 20px; height: 7px; overflow: hidden; }
-    .tier-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #1B4F8C, #C9972B); transition: width 0.5s ease; }
-
-    /* FLOW STEPS */
-    .flow-step { display: flex; align-items: flex-start; gap: 10px; padding: 9px; background: #f8fafc; border-radius: 8px; margin-bottom: 7px; font-size: 11px; }
-    .flow-step .icon { font-size: 16px; margin-top: 1px; }
-    .flow-step .text strong { display: block; color: #1B4F8C; margin-bottom: 2px; font-size: 11px; }
-    .flow-step .text { color: #444; flex: 1; }
-
-    /* PROGRESS */
-    .progress-bar { background: #e0e0e0; border-radius: 20px; height: 6px; margin: 10px 0; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #1B4F8C, #C9972B); }
-
-    /* AGENT CARDS */
-    .agent-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 13px; margin-bottom: 10px; }
-    .agent-card.active-agent { border-color: #4CAF50; background: #f1f8f1; }
-    .agent-card.warning-agent { border-color: #C9972B; background: #fff8e1; }
-    .agent-card.danger-agent { border-color: #e53935; background: #fce4ec; }
-    .agent-name { font-weight: bold; font-size: 12px; color: #1B4F8C; margin-bottom: 5px; }
-    .agent-detail { font-size: 11px; color: #555; margin-top: 3px; }
-
-    /* ACCOUNT DISPLAY */
-    .account-display { background: #1B4F8C; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .account-label { font-size: 9px; color: #B8D4F0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-    .account-value { font-size: 18px; font-weight: bold; color: white; }
-    .account-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 8px 0; }
-    .account-sub { font-size: 9px; color: #B8D4F0; margin-top: 2px; }
-
-    /* STATS */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .stat-box { background: white; border-radius: 10px; padding: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); text-align: center; }
-    .stat-num { font-size: 20px; font-weight: bold; color: #1B4F8C; }
-    .stat-label { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-
-    /* CORRIDOR */
-    .corridor-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .corridor-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f4f8; font-size: 11px; flex-wrap: wrap; gap: 6px; }
-    .corridor-row:last-child { border-bottom: none; }
-    .corridor-bar { background: #e0e0e0; border-radius: 10px; height: 6px; width: 80px; overflow: hidden; display: inline-block; }
-    .corridor-fill { height: 100%; border-radius: 10px; }
-
-    /* LEDGER TABLE */
-    .ledger-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-    .ledger-table th { background: #1a1a2e; color: white; padding: 7px 8px; text-align: left; }
-    .ledger-table td { padding: 7px 8px; border-bottom: 1px solid #f0f4f8; }
-
-    /* FEE ROWS */
-    .fee-row { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 0; border-bottom: 1px dashed #e0e0e0; }
-    .fee-row:last-child { border-bottom: none; }
-    .fee-row .fee-label { color: #555; }
-    .fee-row .fee-value { font-weight: bold; color: #1B4F8C; }
-
-    /* TIMER */
-    .timer-box { background: #fff8e1; border: 2px solid #C9972B; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 10px; }
-    .timer-num { font-size: 30px; font-weight: bold; color: #C9972B; }
-    .timer-label { font-size: 10px; color: #666; }
-
-    /* STATUS ROWS */
-    .status-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f4f8; font-size: 11px; }
-    .status-row:last-child { border-bottom: none; }
-    .status-label { color: #666; }
-
-    /* PROCESSING */
-    .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,26,46,0.88); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
-    .processing-overlay.active { display: flex; }
-    .spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.15); border-top: 4px solid #C9972B; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 14px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .processing-text { color: white; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
-    .processing-sub { color: #B8D4F0; font-size: 10px; margin-top: 5px; }
-
-    /* SUCCESS */
-    .success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,26,46,0.92); z-index: 999; justify-content: center; align-items: center; flex-direction: column; padding: 24px; }
-    .success-overlay.active { display: flex; }
-    .success-icon-big { font-size: 54px; margin-bottom: 14px; }
-    .success-title { color: white; font-size: 16px; font-weight: bold; margin-bottom: 6px; text-align: center; letter-spacing: 1px; }
-    .success-ref { color: #C9972B; font-size: 12px; margin-bottom: 14px; }
-    .success-details { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; width: 100%; max-width: 340px; margin-bottom: 18px; }
-    .success-row { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .success-row:last-child { border-bottom: none; }
-    .success-row .s-label { color: #B8D4F0; }
-    .success-row .s-value { color: white; font-weight: bold; }
-    .success-row .s-value.green { color: #4CAF50; }
-    .success-row .s-value.gold { color: #C9972B; }
-
-    .closing-box { background: #1a1a2e; color: #B8D4F0; border-radius: 12px; padding: 18px; text-align: center; font-size: 11px; line-height: 2; margin-bottom: 14px; }
-    .closing-box strong { color: white; font-size: 13px; display: block; margin-bottom: 6px; letter-spacing: 1px; }
-    .closing-box em { color: #B8D4F0; font-size: 10px; display: block; margin-top: 6px; }
-    .center { text-align: center; }
-    .big-icon { font-size: 44px; text-align: center; margin: 10px 0; }
-  </style>
-</head>
-<body>
-
-<!-- PROCESSING OVERLAY -->
-<div class="processing-overlay" id="processingOverlay">
-  <div class="spinner"></div>
-  <div class="processing-text">ENGINE PROCESSING</div>
-  <div class="processing-sub" id="processingStep">Validating...</div>
-</div>
-
-<!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-icon-big">✅</div>
-  <div class="success-title">TRANSACTION SETTLED</div>
-  <div class="success-ref" id="successRef">MPOS-2026-00001</div>
-  <div class="success-details" id="successDetails"></div>
-  <button class="btn" style="max-width:320px;width:100%;" onclick="closeSuccess()">View Settlement →</button>
-</div>
-
-<!-- HEADER -->
-<div class="top-bar">
-  <div>
-    <div class="logo-mark">mPOS</div>
-    <div class="logo-sub">Mobile Point of Service</div>
-  </div>
-  <div class="live-badge">● LIVE</div>
-</div>
-
-<!-- ACCESS GATE -->
-<div id="accessGate">
-  <div class="gate-wrap">
-    <div class="gate-box">
-      <div class="gate-logo">
-        <div class="gate-logo-mark">mPOS</div>
-        <div class="gate-logo-sub">Mobile Point of Service</div>
-      </div>
-      <div class="gate-title">Simulation Access</div>
-      <div class="gate-subtitle">This simulation demonstrates proprietary financial infrastructure. Please complete the form below before proceeding.</div>
-
-      <div id="gateForm">
-        <div class="ip-notice-gate">
-          <strong>⚠️ INTELLECTUAL PROPERTY NOTICE</strong>
-          This demonstration is the proprietary and confidential property of Vershima Solomon Kwaghshi / PLeNat Technologies. All concepts, mechanics, system logic, and processes shown are protected intellectual property. Viewing does not constitute permission to reproduce, replicate, derive, or commercialise any concept shown. Unauthorised use is a violation of intellectual property law.
-        </div>
-
-        <div class="gate-input-group">
-          <label>Full Name *</label>
-          <input type="text" id="gateName" placeholder="Your full name"/>
-        </div>
-        <div class="gate-input-group">
-          <label>Email Address *</label>
-          <input type="email" id="gateEmail" placeholder="Your email address"/>
-        </div>
-        <div class="gate-input-group">
-          <label>Institution / Organisation *</label>
-          <input type="text" id="gateInstitution" placeholder="Your company or institution"/>
-        </div>
-        <div class="gate-input-group">
-          <label>Your Role *</label>
-          <select id="gateRole">
-            <option value="">Select your role</option>
-            <option>Bank Executive</option>
-            <option>Technical Team</option>
-            <option>Regulatory / Compliance</option>
-            <option>Investor</option>
-            <option>Co-Founder Candidate</option>
-            <option>Advisor</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="gate-input-group">
-          <label>Country *</label>
-          <input type="text" id="gateCountry" placeholder="Your country"/>
-        </div>
-
-        <div class="gate-ack">
-          <div class="gate-ack-title">Required Acknowledgements</div>
-          <div class="gate-ack-item">
-            <input type="checkbox" id="ack1"/>
-            <label for="ack1">I acknowledge this simulation is strictly confidential and proprietary to Vershima Solomon Kwaghshi / PLeNat Technologies.</label>
-          </div>
-          <div class="gate-ack-item">
-            <input type="checkbox" id="ack2"/>
-            <label for="ack2">I agree not to reproduce, replicate, share, or derive any system or product from the concepts demonstrated.</label>
-          </div>
-          <div class="gate-ack-item">
-            <input type="checkbox" id="ack3"/>
-            <label for="ack3">I understand my access details are being recorded including name, email, institution, role, and country.</label>
-          </div>
-          <div class="gate-ack-item">
-            <input type="checkbox" id="ack4"/>
-            <label for="ack4">I confirm I am accessing this simulation for evaluation purposes only.</label>
-          </div>
-        </div>
-
-        <button class="gate-btn" onclick="submitGate()">Access Simulation →</button>
-        <div class="gate-error" id="gateError">Please complete all fields and tick all acknowledgements.</div>
-      </div>
-
-      <div class="gate-success" id="gateSuccess">
-        <div class="s-icon">✅</div>
-        <div class="s-title">Access Granted</div>
-        <div class="s-sub">Your details have been recorded. You may now proceed to the mPOS simulation.</div>
-        <div class="session-box">
-          <div>Session Reference</div>
-          <div class="session-id" id="sessionId"></div>
-        </div>
-        <button class="gate-btn" onclick="enterApp()">Enter Simulation →</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SIMULATION APP -->
-<div id="simApp" style="display:none;">
-
-  <div class="session-bar" id="sessionBar">SESSION: —</div>
-  <div class="info-bar">SETTLEMENT SIMULATION — BACKEND INFRASTRUCTURE DEMONSTRATION</div>
-
-  <div class="mpos-nav">
-    <button class="active" onclick="showPanel('overview', this)">🏦 Overview</button>
-    <button onclick="showPanel('engine', this)">⚙️ Engine</button>
-    <button onclick="showPanel('agents', this)">👥 Agents</button>
-    <button onclick="showPanel('ledger', this)">📒 Ledger</button>
-    <button onclick="showPanel('convert', this)">🔄 Convert</button>
-    <button onclick="showPanel('settlement', this)">✅ Settlement</button>
-  </div>
-
-  <!-- TAB 1: OVERVIEW -->
-  <div class="panel active" id="panel-overview">
-    <div style="height:14px;"></div>
-
-    <div class="card">
-      <h3>What is mPOS?</h3>
-      <div class="info-box info-blue">
-        💡 mPOS is a global digital accounting and settlement layer embedded inside existing banking systems. It enables near-instant cross-border settlement through coordinated local liquidity and dynamic international ledger balancing — without requiring traditional prefunding or real-time cross-border money movement.
-      </div>
-      <div class="flow-step">
-        <span class="icon">🏦</span>
-        <div class="text"><strong>Invisible to customers</strong>The customer sees their bank. The bank uses mPOS underneath — just like Visa and Mastercard power card payments invisibly.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">⚡</span>
-        <div class="text"><strong>Near instant settlement</strong>Value moves through coordinated local payouts and digital ledger balancing — not physical cross-border transfer.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">🌍</span>
-        <div class="text"><strong>Any corridor, any direction</strong>Nigeria–UK is the entry corridor. The same architecture scales to any corridor globally.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">🔐</span>
-        <div class="text"><strong>Compliance built in</strong>KYC, AML, tier limits, and random agent assignment are enforced at engine level — not added later.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">🤝</span>
-        <div class="text"><strong>Banks stay in control</strong>mPOS works alongside banks — not around them. Banks keep their customer relationships. mPOS provides the settlement engine underneath.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Try It Live — Initiate a Transfer</h3>
-      <div class="info-box info-gold">
-        ⚖️ Enter any amount below to see how mPOS processes a real cross-border transfer from Nigeria to the UK. Every calculation is live.
-      </div>
-      <div class="input-group">
-        <label>Origin Bank</label>
-        <select><option>Stanbic IBTC — Nigeria 🇳🇬</option></select>
-      </div>
-      <div class="input-group">
-        <label>Destination Corridor</label>
-        <select id="corridor" onchange="updateRate()">
-          <option value="NG-UK" data-rate="2050" data-symbol="£" data-currency="GBP">Nigeria → United Kingdom (GBP)</option>
-          <option value="NG-US" data-rate="1580" data-symbol="$" data-currency="USD">Nigeria → United States (USD)</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Send Amount (NGN ₦)</label>
-        <input type="number" id="sendAmount" placeholder="Enter NGN amount e.g. 205000" oninput="calculateAmount()" min="1000"/>
-      </div>
-      <div class="amount-display">
-        <div class="amount-main" id="convertedAmount">£0.00</div>
-        <div class="amount-sub" id="rateDisplay">Rate: 1 GBP = ₦2,050</div>
-      </div>
-      <div id="tierSection" style="display:none;">
-        <div class="tier-bar">
-          <div class="tier-bar-label">
-            <span id="tierLabel">Tier 2 — £2,000 daily limit</span>
-            <span id="tierUsed">£0 used</span>
-          </div>
-          <div class="tier-bar-track">
-            <div class="tier-bar-fill" id="tierFill" style="width:0%"></div>
-          </div>
-        </div>
-        <div id="tierStatus"></div>
-      </div>
-      <div class="input-group">
-        <label>Recipient Full Name</label>
-        <input type="text" id="recipientName" placeholder="e.g. John Adeyemi"/>
-      </div>
-      <div class="input-group">
-        <label>Recipient Account Number</label>
-        <input type="text" id="recipientAccount" placeholder="e.g. 12345678"/>
-      </div>
-      <div class="input-group">
-        <label>Recipient Bank</label>
-        <input type="text" id="recipientBank" placeholder="e.g. Barclays UK"/>
-      </div>
-      <div id="feeSection" style="display:none;" class="info-box info-gold">
-        <div id="feeDetails"></div>
-      </div>
-      <button class="btn" onclick="initiateTransaction()">Submit to mPOS Engine →</button>
-    </div>
-  </div>
-
-  <!-- TAB 2: ENGINE -->
-  <div class="panel" id="panel-engine">
-    <div style="height:14px;"></div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" id="engineTxCount">0</div><div class="stat-label">Transactions</div></div>
-      <div class="stat-box"><div class="stat-num">100%</div><div class="stat-label">Uptime</div></div>
-    </div>
-    <div class="card">
-      <h3>How the Engine Works</h3>
-      <div class="info-box info-blue">
-        💡 When a bank sends a transfer instruction to mPOS, the engine runs a sequence of checks automatically — in under a second. No human involvement. No manual routing. The engine decides everything.
-      </div>
-      <div class="flow-step">
-        <span class="icon">1️⃣</span>
-        <div class="text"><strong>Bank sends instruction</strong>The bank authenticates its customer and sends a structured instruction to the mPOS engine via API.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">2️⃣</span>
-        <div class="text"><strong>Engine validates</strong>AML screening, tier limits, FX rate lock, and transaction reference generation — all automatic.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">3️⃣</span>
-        <div class="text"><strong>Agents assigned randomly</strong>Engine scans qualified agents on both sides and randomly assigns one each — neither party can choose the other.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">4️⃣</span>
-        <div class="text"><strong>Local payouts coordinated</strong>Sender agent receives fiat locally. Recipient agent pays recipient locally. No money crosses the border.</div>
-      </div>
-      <div class="flow-step">
-        <span class="icon">5️⃣</span>
-        <div class="text"><strong>Ledger balanced digitally</strong>International ledger entries record the obligations on both sides. Settlement is complete.</div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Last Engine Cycle</h3>
-      <div id="engineLastCycle">
-        <div style="text-align:center;color:#999;font-size:11px;padding:16px;">Submit a transaction on the Overview tab to see the engine cycle.</div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Engine Controls — Always Active</h3>
-      <div class="data-row"><span class="lbl">Bank Authentication</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">AML Screening</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">Tier Limit Enforcement</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">FX Rate Lock</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">Random Agent Assignment</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">Ledger Debit / Credit</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-      <div class="data-row"><span class="lbl">3-Day Conversion Rule</span><span class="val"><span class="badge badge-green">Active</span></span></div>
-    </div>
-  </div>
-
-  <!-- TAB 3: AGENTS -->
-  <div class="panel" id="panel-agents">
-    <div style="height:14px;"></div>
-    <div class="card">
-      <h3>Who Are Agents?</h3>
-      <div class="info-box info-gold">
-        👤 Agents are ordinary bank customers — not employees, not external companies. They have consented to participate in the mPOS network and have available liquidity. They earn a share of the fee on every transaction they facilitate. The engine assigns them randomly — the sender never knows who their agent is, and the agent never knows who the sender is.
-      </div>
-    </div>
-    <div class="card">
-      <h3>Nigeria Agents 🇳🇬</h3>
-      <div class="info-box info-blue">
-        💡 For sender agents, the engine checks their <strong>international ledger balance</strong> — not their savings account. The ledger is what facilitates the transaction on the sending side.
-      </div>
-      <div id="nigeriaAgents"></div>
-    </div>
-    <div class="card">
-      <h3>UK Agents 🇬🇧</h3>
-      <div class="info-box info-blue">
-        💡 For recipient agents, the engine checks their <strong>local fiat liquidity</strong> — because they need actual GBP to pay the recipient locally.
-      </div>
-      <div id="ukAgents"></div>
-    </div>
-  </div>
-
-  <!-- TAB 4: LEDGER -->
-  <div class="panel" id="panel-ledger">
-    <div style="height:14px;"></div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" id="ledgerNGEntries">0</div><div class="stat-label">Nigeria Entries</div></div>
-      <div class="stat-box"><div class="stat-num" id="ledgerUKEntries">0</div><div class="stat-label">UK Entries</div></div>
-    </div>
-    <div class="card">
-      <h3>What is the International Ledger?</h3>
-      <div class="info-box info-blue">
-        💡 Think of the international ledger like a shared scorecard. When Nigeria sends to the UK, the scorecard records: Nigeria side owes less, UK side is owed more. No money physically moved. The obligation is balanced digitally. Agents settle the obligation locally on each side.
-      </div>
-      <div class="info-box info-green">
-        ✅ The ledger is denominated in each agent's own local currency. It appears in their bank app as a standard account line — same symbol, same value. It is not a separate currency, not a token, not a reserve pool. It is simply an accounting record.
-      </div>
-    </div>
-    <div class="card">
-      <h3>Live Ledger Entries</h3>
-      <div id="ledgerEntries">
-        <div style="text-align:center;color:#999;font-size:11px;padding:16px;">No ledger entries yet. Submit a transaction first.</div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Recipient-Side Buffer</h3>
-      <div class="info-box info-gold">
-        ⚖️ 0.2% of each transaction is retained on the recipient side in destination currency. This accumulates collectively across all corridors flowing into the UK — creating a network-wide stabilisation reserve. Because corridors rarely all stress simultaneously, the collective buffer is self-sustaining.
-      </div>
-      <div class="data-row"><span class="lbl">Buffer Accumulated (UK side)</span><span class="val red" id="bufferTotal">£0.00</span></div>
-      <div class="data-row"><span class="lbl">Contributing Transactions</span><span class="val" id="bufferTxCount">0</span></div>
-      <div class="data-row"><span class="lbl">Network Status</span><span class="val"><span class="badge badge-green">Collectively Stable</span></span></div>
-    </div>
-  </div>
-
-  <!-- TAB 5: CONVERT -->
-  <div class="panel" id="panel-convert">
-    <div style="height:14px;"></div>
-    <div class="card">
-      <h3>How Agent Conversion Works</h3>
-      <div class="info-box info-blue">
-        💡 After facilitating a transaction, an agent holds an international ledger balance. They can convert this back to local fiat at any time — immediately if they want, or within 3 days maximum. They exchange with another agent in the same country. This keeps ledger value circulating actively across the network.
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Immediate Conversion — UK Agent UK-007</h3>
-      <div class="info-box info-green">
-        ✅ This agent chooses to convert right away. There is no waiting requirement — 3 days is the maximum window, not a mandatory delay.
-      </div>
-      <div class="data-row"><span class="lbl">Current Ledger Balance</span><span class="val" id="conv007Balance">£8,200.00</span></div>
-      <div class="data-row"><span class="lbl">Exchange Partner</span><span class="val">Agent UK-013 🇬🇧</span></div>
-      <div class="data-row"><span class="lbl">Conversion Fee</span><span class="val green">0.05%</span></div>
-      <div class="data-row"><span class="lbl">Same Country Only</span><span class="val green">✓ UK to UK</span></div>
-      <div id="conv007Result" style="display:none;" class="info-box info-green" style="margin-top:10px;"></div>
-      <button class="btn" onclick="doImmediateConversion()">Convert Immediately →</button>
-    </div>
-
-    <div class="card">
-      <h3>Auto-Conversion — Nigeria Agent NG-019</h3>
-      <div class="info-box info-red">
-        ⚠️ This agent held their ledger balance for more than 3 days without converting. The engine automatically converts their balance at a higher fee to protect the network from stagnation.
-      </div>
-      <div class="data-row"><span class="lbl">Ledger Balance</span><span class="val">₦9,400,000</span></div>
-      <div class="data-row"><span class="lbl">Ledger Age</span><span class="val red">Day 3+ — Exceeded ⚠️</span></div>
-      <div class="data-row"><span class="lbl">Auto-Conversion Fee</span><span class="val red">0.08%</span></div>
-      <div id="autoConvResult" style="display:none;" class="info-box info-red" style="margin-top:10px;"></div>
-      <button class="btn btn-gold" onclick="doAutoConversion()">Simulate Auto-Conversion →</button>
-    </div>
-
-    <div class="card">
-      <h3>Why This Matters</h3>
-      <div class="info-box info-gold">
-        ⚖️ The conversion cycle is what keeps the entire network healthy. Agents who convert promptly are rewarded with a lower fee. Agents who delay are automatically corrected by the engine. Cross-border ledger exchange is blocked — value can only circulate domestically between same-country agents. This prevents hoarding and corridor imbalance.
-      </div>
-      <div class="data-row"><span class="lbl">Convert promptly</span><span class="val green">0.05% fee ✓</span></div>
-      <div class="data-row"><span class="lbl">Engine auto-converts</span><span class="val red">0.08% fee ⚠️</span></div>
-      <div class="data-row"><span class="lbl">Cross-border exchange</span><span class="val red">Blocked ✗</span></div>
-      <div class="data-row"><span class="lbl">Same-country exchange</span><span class="val green">Allowed ✓</span></div>
-    </div>
-  </div>
-
-  <!-- TAB 6: SETTLEMENT -->
-  <div class="panel" id="panel-settlement">
-    <div style="height:14px;"></div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" id="settleTotalTx">0</div><div class="stat-label">Settled</div></div>
-      <div class="stat-box"><div class="stat-num" id="settleTotalVol">£0</div><div class="stat-label">Volume</div></div>
-      <div class="stat-box"><div class="stat-num" id="settleTotalFees">£0</div><div class="stat-label">Fees</div></div>
-      <div class="stat-box"><div class="stat-num" id="settleBuffer">£0</div><div class="stat-label">Buffer</div></div>
-    </div>
-
-    <div class="corridor-card">
-      <div style="font-size:11px;color:#1B4F8C;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Corridor Health</div>
-      <div class="corridor-row">
-        <span style="font-size:11px;color:#444;">Nigeria 🇳🇬 → UK 🇬🇧</span>
-        <div class="corridor-bar"><div class="corridor-fill" style="width:85%;background:#4CAF50;"></div></div>
-        <span class="badge badge-green">Stable</span>
-      </div>
-      <div class="corridor-row">
-        <span style="font-size:11px;color:#444;">Nigeria 🇳🇬 → US 🇺🇸</span>
-        <div class="corridor-bar"><div class="corridor-fill" style="width:90%;background:#4CAF50;"></div></div>
-        <span class="badge badge-green">Stable</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Transaction History</h3>
-      <div id="txHistory">
-        <div style="text-align:center;color:#999;font-size:11px;padding:16px;">No transactions yet.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>System Health</h3>
-      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-      <div class="status-row"><span class="status-label">Bank Authentication</span><span class="badge badge-green">✓ Active</span></div>
-      <div class="status-row"><span class="status-label">Random Agent Assignment</span><span class="badge badge-green">✓ Active</span></div>
-      <div class="status-row"><span class="status-label">Ledger Posting</span><span class="badge badge-green">✓ Active</span></div>
-      <div class="status-row"><span class="status-label">Buffer Accumulation</span><span class="badge badge-green">✓ Active</span></div>
-      <div class="status-row"><span class="status-label">Agent Conversion Cycle</span><span class="badge badge-green">✓ Active</span></div>
-      <div class="status-row"><span class="status-label">Corridor Balance</span><span class="badge badge-green">✓ Stable</span></div>
-    </div>
-
-    <div class="closing-box">
-      <strong>mPOS — Mobile Point of Service</strong>
-      No money crossed the border in real time.<br/>
-      Local agents paid locally.<br/>
-      International ledger balanced the obligation digitally.<br/>
-      Agents randomly assigned. Tier limits enforced.<br/>
-      <em>Global digital accounting layer — embedded in banks. Invisible to customers. Powering cross-border settlement.</em>
-    </div>
-  </div>
-
-</div>
-
-<script>
-  let state = {
-    transactions: [],
-    txCounter: 1,
-    dailyUsed: 0,
-    totalVolume: 0,
-    totalFees: 0,
-    totalBuffer: 0,
-    ngLedgerEntries: 0,
-    ukLedgerEntries: 0,
-    sessionId: '',
-    agents: {
-      nigeria: [
-        { id: 'NG-004', location: 'Lagos', savings: 48500000, ledger: 24500000, ledgerAge: 0, currency: '₦' },
-        { id: 'NG-011', location: 'Abuja', savings: 32100000, ledger: 18200000, ledgerAge: 1, currency: '₦' },
-        { id: 'NG-019', location: 'Port Harcourt', savings: 21800000, ledger: 9400000, ledgerAge: 3, currency: '₦' },
-      ],
-      uk: [
-        { id: 'UK-007', location: 'London', savings: 285000, ledger: 8200, ledgerAge: 0, currency: '£' },
-        { id: 'UK-013', location: 'Manchester', savings: 142000, ledger: 4100, ledgerAge: 1, currency: '£' },
-        { id: 'UK-021', location: 'Birmingham', savings: 98000, ledger: 2800, ledgerAge: 2, currency: '£' },
-      ]
-    }
-  };
-
-  const TIER_LIMIT = 2000;
-  const FEE_RATE = 0.012;
-  const BUFFER_RATE = 0.002;
-  const DIST_RATE = 0.010;
-
-  // ACCESS GATE
-  function generateSessionId() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let id = 'SID-';
-    for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
-    return id;
-  }
-
-  async function submitGate() {
-    const name = document.getElementById('gateName').value.trim();
-    const email = document.getElementById('gateEmail').value.trim();
-    const institution = document.getElementById('gateInstitution').value.trim();
-    const role = document.getElementById('gateRole').value;
-    const country = document.getElementById('gateCountry').value.trim();
-    const ack1 = document.getElementById('ack1').checked;
-    const ack2 = document.getElementById('ack2').checked;
-    const ack3 = document.getElementById('ack3').checked;
-    const ack4 = document.getElementById('ack4').checked;
-
-    if (!name || !email || !institution || !role || !country || !ack1 || !ack2 || !ack3 || !ack4) {
-      document.getElementById('gateError').style.display = 'block';
-      return;
-    }
-
-    document.getElementById('gateError').style.display = 'none';
-    const sessionId = generateSessionId();
-    state.sessionId = sessionId;
-
-    try {
-      await fetch('https://formspree.io/f/mqenlovg', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          page: 'mPOS Simulation',
-          name, email, institution, role, country,
-          sessionId,
-          timestamp: new Date().toLocaleString()
-        })
-      });
-    } catch(e) { console.log(e); }
-
-    document.getElementById('gateForm').style.display = 'none';
-    document.getElementById('sessionId').textContent = sessionId;
-    document.getElementById('gateSuccess').style.display = 'block';
-  }
-
-  function enterApp() {
-    document.getElementById('accessGate').style.display = 'none';
-    document.getElementById('simApp').style.display = 'block';
-    document.getElementById('sessionBar').textContent = 'SESSION: ' + state.sessionId;
-    renderAgents();
-  }
-
-  // NAV
-  function showPanel(name, btn) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.mpos-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + name).classList.add('active');
-    if (btn) btn.classList.add('active');
-    if (name === 'agents') renderAgents();
-    if (name === 'ledger') renderLedger();
-    if (name === 'settlement') renderSettlement();
-    if (name === 'convert') updateConversionPanel();
-  }
-
-  // CALCULATIONS
-  function updateRate() {
-    const sel = document.getElementById('corridor');
-    const opt = sel.options[sel.selectedIndex];
-    document.getElementById('rateDisplay').textContent = `Rate: 1 ${opt.dataset.currency} = ₦${Number(opt.dataset.rate).toLocaleString()}`;
-    calculateAmount();
-  }
-
-  function calculateAmount() {
-    const amount = parseFloat(document.getElementById('sendAmount').value) || 0;
-    const sel = document.getElementById('corridor');
-    const opt = sel.options[sel.selectedIndex];
-    const rate = parseFloat(opt.dataset.rate);
-    const symbol = opt.dataset.symbol;
-    const currency = opt.dataset.currency;
-
-    const gross = amount / rate;
-    const fee = gross * FEE_RATE;
-    const net = gross - fee;
-    const buffer = gross * BUFFER_RATE;
-    const distributed = gross * DIST_RATE;
-    const currentUsed = state.dailyUsed / rate;
-
-    document.getElementById('convertedAmount').textContent = amount > 0 ? `${symbol}${net.toFixed(2)}` : `${symbol}0.00`;
-
-    if (amount > 0) {
-      document.getElementById('tierSection').style.display = 'block';
-      document.getElementById('feeSection').style.display = 'block';
-
-      const pct = Math.min((currentUsed / TIER_LIMIT) * 100, 100);
-      document.getElementById('tierFill').style.width = pct + '%';
-      document.getElementById('tierLabel').textContent = `Tier 2 — ${symbol}${TIER_LIMIT.toLocaleString()} daily limit`;
-      document.getElementById('tierUsed').textContent = `${symbol}${currentUsed.toFixed(2)} used`;
-
-      const newUsed = currentUsed + gross;
-      if (newUsed > TIER_LIMIT) {
-        document.getElementById('tierStatus').innerHTML = `<div class="info-box info-red" style="margin-top:6px;">⚠️ Exceeds daily tier limit. Reduce amount or request tier upgrade from your bank.</div>`;
-      } else {
-        document.getElementById('tierStatus').innerHTML = `<div class="info-box info-green" style="margin-top:6px;">✅ Within limit — ${symbol}${(TIER_LIMIT - newUsed).toFixed(2)} remaining after this transaction.</div>`;
-      }
-
-      document.getElementById('feeDetails').innerHTML = `
-        <strong style="display:block;margin-bottom:5px;color:#1B4F8C;font-size:11px;">Live Fee Breakdown</strong>
-        <div style="font-size:11px;">Amount sent: ₦${Number(amount).toLocaleString()} → Gross ${symbol}: ${symbol}${gross.toFixed(2)}</div>
-        <div style="font-size:11px;margin-top:3px;">Total fee (1.2%): ${symbol}${fee.toFixed(2)} | Distributed (1%): ${symbol}${distributed.toFixed(2)} | Buffer retained recipient side (0.2%): ${symbol}${buffer.toFixed(2)}</div>
-        <strong style="font-size:13px;display:block;margin-top:6px;color:#1B4F8C;">Recipient receives: ${symbol}${net.toFixed(2)}</strong>
-      `;
-    } else {
-      document.getElementById('tierSection').style.display = 'none';
-      document.getElementById('feeSection').style.display = 'none';
-    }
-  }
-
-  // TRANSACTION
-  function initiateTransaction() {
-    const amount = parseFloat(document.getElementById('sendAmount').value);
-    const recipientName = document.getElementById('recipientName').value.trim();
-    const recipientAccount = document.getElementById('recipientAccount').value.trim();
-    const recipientBank = document.getElementById('recipientBank').value.trim();
-
-    if (!amount || amount < 1000) { alert('Please enter a valid NGN amount (minimum ₦1,000)'); return; }
-    if (!recipientName) { alert('Please enter recipient full name'); return; }
-    if (!recipientAccount) { alert('Please enter recipient account number'); return; }
-    if (!recipientBank) { alert('Please enter recipient bank'); return; }
-
-    const sel = document.getElementById('corridor');
-    const opt = sel.options[sel.selectedIndex];
-    const rate = parseFloat(opt.dataset.rate);
-    const symbol = opt.dataset.symbol;
-    const currency = opt.dataset.currency;
-    const corrCode = sel.value;
-
-    const gross = amount / rate;
-    const currentUsed = state.dailyUsed / rate;
-    if (currentUsed + gross > TIER_LIMIT) { alert('Transaction exceeds your daily tier limit.'); return; }
-
-    const fee = gross * FEE_RATE;
-    const net = gross - fee;
-    const buffer = gross * BUFFER_RATE;
-    const distributed = gross * DIST_RATE;
-
-    const steps = [
-      'Authenticating bank token...',
-      'Running AML screening...',
-      'Checking tier limits...',
-      'Locking FX rate...',
-      'Scanning Nigeria agents in real time...',
-      'Randomly assigning sender agent...',
-      'Locking sender ledger balance...',
-      'Scanning UK agents in real time...',
-      'Randomly assigning recipient agent...',
-      'Locking recipient fiat liquidity...',
-      'Executing local payout...',
-      'Posting ledger entries...',
-      'Distributing fees...',
-      'Retaining recipient-side buffer...',
-      'Finalising settlement...'
-    ];
-
-    let stepIndex = 0;
-    const overlay = document.getElementById('processingOverlay');
-    const stepEl = document.getElementById('processingStep');
-    overlay.classList.add('active');
-
-    const interval = setInterval(() => {
-      if (stepIndex < steps.length) {
-        stepEl.textContent = steps[stepIndex];
-        stepIndex++;
-      } else {
-        clearInterval(interval);
-        overlay.classList.remove('active');
-        completeTransaction(amount, gross, fee, net, buffer, distributed, symbol, currency, corrCode, rate, recipientName, recipientAccount, recipientBank);
-      }
-    }, 300);
-  }
-
-  function completeTransaction(ngn, gross, fee, net, buffer, distributed, symbol, currency, corrCode, rate, recipientName, recipientAccount, recipientBank) {
-    const ref = 'MPOS-2026-' + String(state.txCounter).padStart(5, '0');
-    state.txCounter++;
-
-    const ngAgents = state.agents.nigeria;
-    const ukAgents = state.agents.uk;
-    const senderAgent = ngAgents[Math.floor(Math.random() * ngAgents.length)];
-    const recipientAgent = ukAgents[Math.floor(Math.random() * ukAgents.length)];
-
-    senderAgent.savings += ngn;
-    senderAgent.ledger -= ngn;
-    senderAgent.ledgerAge = 0;
-
-    recipientAgent.savings -= net;
-    recipientAgent.ledger += net;
-    recipientAgent.ledgerAge = 0;
-
-    state.dailyUsed += ngn;
-    state.totalVolume += gross;
-    state.totalFees += fee;
-    state.totalBuffer += buffer;
-    state.ngLedgerEntries++;
-    state.ukLedgerEntries++;
-
-    const tx = {
-      ref, ngn, gross, fee, net, buffer, distributed,
-      symbol, currency, corrCode, rate,
-      senderAgent: senderAgent.id,
-      senderLocation: senderAgent.location,
-      recipientAgent: recipientAgent.id,
-      recipientLocation: recipientAgent.location,
-      recipientName, recipientAccount, recipientBank,
-      timestamp: new Date().toLocaleTimeString(),
-      state: 'SETTLED'
-    };
-
-    state.transactions.unshift(tx);
-
-    document.getElementById('successRef').textContent = ref;
-    document.getElementById('successDetails').innerHTML = `
-      <div class="success-row"><span class="s-label">Amount Sent</span><span class="s-value">₦${Number(ngn).toLocaleString()}</span></div>
-      <div class="success-row"><span class="s-label">Amount Received</span><span class="s-value green">${symbol}${net.toFixed(2)}</span></div>
-      <div class="success-row"><span class="s-label">Engine Fee (1.2%)</span><span class="s-value gold">${symbol}${fee.toFixed(2)}</span></div>
-      <div class="success-row"><span class="s-label">Buffer Retained (0.2%)</span><span class="s-value red">${symbol}${buffer.toFixed(2)}</span></div>
-      <div class="success-row"><span class="s-label">Sender Agent</span><span class="s-value">${senderAgent.id} — ${senderAgent.location} 🇳🇬</span></div>
-      <div class="success-row"><span class="s-label">Recipient Agent</span><span class="s-value">${recipientAgent.id} — ${recipientAgent.location} 🇬🇧</span></div>
-      <div class="success-row"><span class="s-label">Recipient</span><span class="s-value">${recipientName}</span></div>
-      <div class="success-row"><span class="s-label">Settlement Time</span><span class="s-value green">⚡ Near Instant</span></div>
-      <div class="success-row"><span class="s-label">State</span><span class="s-value green">SETTLED ✓</span></div>
-    `;
-    document.getElementById('successOverlay').classList.add('active');
-
-    document.getElementById('engineTxCount').textContent = state.transactions.length;
-    document.getElementById('engineLastCycle').innerHTML = `
-      <div class="data-row"><span class="lbl">Reference</span><span class="val">${ref}</span></div>
-      <div class="data-row"><span class="lbl">Bank Auth</span><span class="val"><span class="badge badge-green">Passed ✓</span></span></div>
-      <div class="data-row"><span class="lbl">AML</span><span class="val"><span class="badge badge-green">Passed ✓</span></span></div>
-      <div class="data-row"><span class="lbl">Tier Limit</span><span class="val"><span class="badge badge-green">Within Limit ✓</span></span></div>
-      <div class="data-row"><span class="lbl">FX Locked</span><span class="val">1 ${currency} = ₦${Number(rate).toLocaleString()}</span></div>
-      <div class="data-row"><span class="lbl">Sender Agent</span><span class="val">${senderAgent.id} — ${senderAgent.location} 🇳🇬 (random)</span></div>
-      <div class="data-row"><span class="lbl">Recipient Agent</span><span class="val">${recipientAgent.id} — ${recipientAgent.location} 🇬🇧 (random)</span></div>
-      <div class="data-row"><span class="lbl">Buffer Retained</span><span class="val red">${symbol}${buffer.toFixed(2)} (recipient side)</span></div>
-      <div class="data-row"><span class="lbl">State</span><span class="val"><span class="badge badge-green">SETTLED ✓</span></span></div>
-    `;
-
-    document.getElementById('sendAmount').value = '';
-    document.getElementById('recipientName').value = '';
-    document.getElementById('recipientAccount').value = '';
-    document.getElementById('recipientBank').value = '';
-    document.getElementById('convertedAmount').textContent = '£0.00';
-    document.getElementById('tierSection').style.display = 'none';
-    document.getElementById('feeSection').style.display = 'none';
-    state.dailyUsed = 0;
-  }
-
-  function closeSuccess() {
-    document.getElementById('successOverlay').classList.remove('active');
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.mpos-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-settlement').classList.add('active');
-    document.querySelectorAll('.mpos-nav button')[5].classList.add('active');
-    renderSettlement();
-  }
-
-  // CONVERSION
-  function updateConversionPanel() {
-    const uk007 = state.agents.uk[0];
-    document.getElementById('conv007Balance').textContent = `£${uk007.ledger.toFixed(2)}`;
-  }
-
-  function doImmediateConversion() {
-    const uk007 = state.agents.uk[0];
-    const convAmount = uk007.ledger;
-    const convFee = convAmount * 0.0005;
-    const fiatReceived = convAmount - convFee;
-    uk007.savings += fiatReceived;
-    uk007.ledger = 0;
-    document.getElementById('conv007Result').style.display = 'block';
-    document.getElementById('conv007Result').innerHTML = `✅ Converted immediately — no waiting required.<br/>Fee: 0.05% — £${convFee.toFixed(2)}<br/>GBP received: £${fiatReceived.toFixed(2)}<br/>Exchange partner: Agent UK-013 (same country ✓)`;
-    updateConversionPanel();
-    renderAgents();
-  }
-
-  function doAutoConversion() {
-    const ng019 = state.agents.nigeria[2];
-    const convAmount = ng019.ledger;
-    const convFee = convAmount * 0.0008;
-    const fiatReceived = convAmount - convFee;
-    ng019.savings += fiatReceived;
-    ng019.ledger = 0;
-    ng019.ledgerAge = 0;
-    document.getElementById('autoConvResult').style.display = 'block';
-    document.getElementById('autoConvResult').innerHTML = `⚠️ Engine auto-converted after 3-day window exceeded.<br/>Fee: 0.08% — ₦${convFee.toLocaleString()}<br/>NGN received: ₦${fiatReceived.toLocaleString()}<br/>Corridor circulation protected automatically.`;
-    renderAgents();
-  }
-
-  // RENDER
-  function renderAgents() {
-    const ngEl = document.getElementById('nigeriaAgents');
-    const ukEl = document.getElementById('ukAgents');
-    if (!ngEl || !ukEl) return;
-
-    ngEl.innerHTML = state.agents.nigeria.map(a => {
-      let cls = 'active-agent';
-      let ageLabel = `Day ${a.ledgerAge} — can convert anytime`;
-      if (a.ledgerAge >= 2) { cls = 'warning-agent'; ageLabel = `Day ${a.ledgerAge} — convert soon`; }
-      if (a.ledgerAge >= 3) { cls = 'danger-agent'; ageLabel = 'Day 3+ — auto-converting'; }
-      return `
-        <div class="agent-card ${cls}">
-          <div class="agent-name">Agent ${a.id} — ${a.location}</div>
-          <div class="account-display">
-            <div class="account-label">Savings Account</div>
-            <div class="account-value">₦${Number(a.savings).toLocaleString()}</div>
-            <hr class="account-divider"/>
-            <div class="account-label">International</div>
-            <div class="account-value">₦${Number(a.ledger).toLocaleString()}</div>
-            <div class="account-sub">Available for international transactions only</div>
-          </div>
-          <div class="data-row"><span class="lbl">Ledger Age</span><span class="val ${a.ledgerAge >= 3 ? 'red' : a.ledgerAge >= 2 ? 'gold' : 'green'}">${ageLabel}</span></div>
-          <div class="data-row"><span class="lbl">Status</span><span class="val"><span class="badge ${a.ledgerAge >= 3 ? 'badge-red' : a.ledgerAge >= 2 ? 'badge-gold' : 'badge-green'}">${a.ledgerAge >= 3 ? 'Auto-Converting' : a.ledgerAge >= 2 ? 'Convert Soon' : 'Active ✓'}</span></span></div>
-        </div>`;
-    }).join('');
-
-    ukEl.innerHTML = state.agents.uk.map(a => {
-      let cls = 'active-agent';
-      let ageLabel = `Day ${a.ledgerAge} — can convert anytime`;
-      if (a.ledgerAge >= 2) { cls = 'warning-agent'; ageLabel = `Day ${a.ledgerAge} — convert soon`; }
-      if (a.ledgerAge >= 3) { cls = 'danger-agent'; ageLabel = 'Day 3+ — auto-converting'; }
-      return `
-        <div class="agent-card ${cls}">
-          <div class="agent-name">Agent ${a.id} — ${a.location}</div>
-          <div class="account-display">
-            <div class="account-label">Current Account</div>
-            <div class="account-value">£${Number(a.savings).toLocaleString()}</div>
-            <hr class="account-divider"/>
-            <div class="account-label">International</div>
-            <div class="account-value">£${Number(a.ledger).toFixed(2)}</div>
-            <div class="account-sub">Available for international transactions only</div>
-          </div>
-          <div class="data-row"><span class="lbl">Ledger Age</span><span class="val ${a.ledgerAge >= 3 ? 'red' : a.ledgerAge >= 2 ? 'gold' : 'green'}">${ageLabel}</span></div>
-          <div class="data-row"><span class="lbl">Status</span><span class="val"><span class="badge ${a.ledgerAge >= 3 ? 'badge-red' : a.ledgerAge >= 2 ? 'badge-gold' : 'badge-green'}">${a.ledgerAge >= 3 ? 'Auto-Converting' : a.ledgerAge >= 2 ? 'Convert Soon' : 'Active ✓'}</span></span></div>
-        </div>`;
-    }).join('');
-  }
-
-  function renderLedger() {
-    document.getElementById('ledgerNGEntries').textContent = state.ngLedgerEntries;
-    document.getElementById('ledgerUKEntries').textContent = state.ukLedgerEntries;
-    document.getElementById('bufferTotal').textContent = '£' + state.totalBuffer.toFixed(2);
-    document.getElementById('bufferTxCount').textContent = state.transactions.length;
-
-    const el = document.getElementById('ledgerEntries');
-    if (state.transactions.length === 0) {
-      el.innerHTML = '<div style="text-align:center;color:#999;font-size:11px;padding:16px;">No ledger entries yet.</div>';
-      return;
-    }
-    el.innerHTML = `
-      <table class="ledger-table">
-        <tr><th>Reference</th><th>Agent</th><th>Fiat</th><th>Ledger</th></tr>
-        ${state.transactions.map(tx => `
-          <tr>
-            <td>${tx.ref}</td>
-            <td>${tx.senderAgent} 🇳🇬</td>
-            <td style="color:#4CAF50;">+₦${Number(tx.ngn).toLocaleString()}</td>
-            <td style="color:#e53935;">-₦${Number(tx.ngn).toLocaleString()}</td>
-          </tr>
-          <tr>
-            <td>${tx.ref}</td>
-            <td>${tx.recipientAgent} 🇬🇧</td>
-            <td style="color:#e53935;">-${tx.symbol}${tx.net.toFixed(2)}</td>
-            <td style="color:#4CAF50;">+${tx.symbol}${tx.net.toFixed(2)}</td>
-          </tr>
-        `).join('')}
-      </table>`;
-  }
-
-  function renderSettlement() {
-    document.getElementById('settleTotalTx').textContent = state.transactions.length;
-    document.getElementById('settleTotalVol').textContent = '£' + state.totalVolume.toFixed(2);
-    document.getElementById('settleTotalFees').textContent = '£' + state.totalFees.toFixed(2);
-    document.getElementById('settleBuffer').textContent = '£' + state.totalBuffer.toFixed(2);
-
-    const el = document.getElementById('txHistory');
-    if (state.transactions.length === 0) {
-      el.innerHTML = '<div style="text-align:center;color:#999;font-size:11px;padding:16px;">No transactions yet.</div>';
-      return;
-    }
-    el.innerHTML = `
-      <table class="ledger-table">
-        <tr><th>Reference</th><th>Sent</th><th>Received</th><th>State</th></tr>
-        ${state.transactions.map(tx => `
-          <tr>
-            <td>${tx.ref}<br/><span style="color:#999;font-size:9px;">${tx.timestamp}</span></td>
-            <td>₦${Number(tx.ngn).toLocaleString()}</td>
-            <td>${tx.symbol}${tx.net.toFixed(2)}</td>
-            <td><span class="badge badge-green">SETTLED</span></td>
-          </tr>`).join('')}
-      </table>`;
-  }
-
-  // INIT
-  renderAgents();
-</script>
-</body>
-</html>
+import uuid
+import random
+import json
+import time
+from datetime import datetime, timedelta
+
+class MPOSEngine:
+    """
+    The central mPOS Settlement Engine. 
+    Manages identity, FX locking, liquidity buffers, and the 3-day velocity rule.
+    """
+    def __init__(self):
+        # --- SYSTEM ARCHITECTURE CONSTANTS ---
+        self.VERSION = "1.0.4-PROTOTYPE"
+        self.BUFFER_RATE = 0.002            # 0.2% for corridor stability
+        self.FEE_STANDARD = 0.0005          # 0.05% for conversion within 3 days
+        self.FEE_PENALTY = 0.0008           # 0.08% for auto-conversion (Penalty)
+        self.DP_REGISTRATION_FEE = 1.29     # Standard entry fee
+        
+        # --- SYSTEM LEDGERS ---
+        self.passport_registry = {}         # Digital Passport database
+        self.collective_buffer_pool = 0.0   # Internal liquidity reserve
+        self.transaction_ledger = []        # Immutable audit trail
+        self.system_revenue = 0.0           # Fees collected by the engine
+
+    # --- IDENTITY LAYER: DIGITAL PASSPORT (DP) ---
+    def generate_digital_passport(self, entity_name, country):
+        """
+        Issues a Digital Passport. 
+        Acts as the root of trust for all mPOS interactions.
+        """
+        dp_id = f"DP-{uuid.uuid4().hex[:12].upper()}"
+        self.passport_registry[dp_id] = {
+            "entity": entity_name,
+            "country": country,
+            "status": "VERIFIED",
+            "reputation_score": 100,
+            "registration_date": datetime.now().isoformat()
+        }
+        self.system_revenue += self.DP_REGISTRATION_FEE
+        return dp_id
+
+    def _is_valid_dp(self, dp_id):
+        return dp_id in self.passport_registry and self.passport_registry[dp_id]["status"] == "VERIFIED"
+
+    # --- LIQUIDITY LAYER: AGENT MANAGEMENT ---
+    def _assign_random_agent(self):
+        """Prevents collusion by randomizing the payout agent."""
+        agents = ["AG-LAGOS-01", "AG-ABUJA-05", "AG-KANO-09", "AG-PH-02", "AG-IBADAN-07"]
+        return random.choice(agents)
+
+    # --- SETTLEMENT CORE: THE ENGINE ---
+    def process_settlement(self, sender_dp, amount_source, rate, settlement_delay_days=1):
+        """
+        The primary mPOS settlement logic.
+        1. Validates Identity
+        2. Locks FX Rate
+        3. Extracts Stability Buffer
+        4. Calculates Velocity Fees
+        """
+        
+        # 1. Identity Gate
+        if not self._is_valid_dp(sender_dp):
+            return {"status": "FAILED", "reason": "UNAUTHORIZED_ACCESS_DENIED"}
+
+        # 2. FX Rate Lock & Gross Calculation
+        # mPOS settles in the destination currency's digital ledger balance
+        gross_value_dest = amount_source * rate
+        
+        # 3. Buffer Retention (The 0.2% Rule)
+        # This builds the collective liquidity reserve for the corridor
+        buffer_retained = gross_value_dest * self.BUFFER_RATE
+        self.collective_buffer_pool += buffer_retained
+        
+        # 4. Velocity Fee Logic (The 72-Hour Rule)
+        # Incentivizes immediate conversion to keep liquidity moving
+        net_liquid_amount = gross_value_dest - buffer_retained
+        
+        if settlement_delay_days <= 3:
+            fee_rate = self.FEE_STANDARD
+            settlement_class = "HIGH_VELOCITY_STANDARD"
+        else:
+            fee_rate = self.FEE_PENALTY
+            settlement_class = "AUTO_CONVERSION_STAGNATION_PENALTY"
+            
+        engine_fee = net_liquid_amount * fee_rate
+        self.system_revenue += engine_fee
+        
+        final_payout_amount = net_liquid_amount - engine_fee
+        
+        # 5. Ledger Entry (The Audit Trail)
+        tx_id = f"MPOS-TX-{uuid.uuid4().hex[:16].upper()}"
+        entry = {
+            "tx_metadata": {
+                "id": tx_id,
+                "timestamp": datetime.now().isoformat(),
+                "class": settlement_class
+            },
+            "financial_data": {
+                "source_amount": amount_source,
+                "fx_rate": rate,
+                "gross_dest": round(gross_value_dest, 2),
+                "buffer_deducted": round(buffer_retained, 2),
+                "service_fee": round(engine_fee, 2),
+                "final_settlement": round(final_payout_amount, 2)
+            },
+            "routing": {
+                "origin_dp": sender_dp,
+                "payout_agent": self._assign_random_agent()
+            }
+        }
+        
+        self.transaction_ledger.append(entry)
+        return entry
+
+    # --- ANALYTICS LAYER ---
+    def get_system_health_report(self):
+        """Generates a real-time overview of the mPOS infrastructure."""
+        total_volume = sum(tx["financial_data"]["gross_dest"] for tx in self.transaction_ledger)
+        return {
+            "status": "OPERATIONAL",
+            "total_settlements": len(self.transaction_ledger),
+            "total_volume_processed": round(total_volume, 2),
+            "collective_buffer_reserve": round(self.collective_buffer_pool, 2),
+            "engine_revenue": round(self.system_revenue, 2)
+        }
+
+# --- SIMULATION EXECUTION ---
+
+if __name__ == "__main__":
+    # 1. Initialize the Engine
+    mpos = MPOSEngine()
+    print(f"--- mPOS Engine {mpos.VERSION} Online ---")
+
+    # 2. Register Institutional Passports (DP)
+    bank_a_dp = mpos.generate_digital_passport("Nile Commercial Bank", "UK")
+    bank_b_dp = mpos.generate_digital_passport("Meridian Trust", "USA")
+
+    # 3. Simulate Transaction 1: High Velocity (Standard)
+    # £50,000 sent to Nigeria at a rate of 1,850. Processed in 1 day.
+    tx1 = mpos.process_settlement(bank_a_dp, 50000, 1850, settlement_delay_days=1)
+    
+    # 4. Simulate Transaction 2: Stagnant Liquidity (Penalty)
+    # $20,000 sent to Nigeria at a rate of 1,450. Processed in 5 days.
+    tx2 = mpos.process_settlement(bank_b_dp, 20000, 1450, settlement_delay_days=5)
+
+    # 5. Output Results
+    print("\n[TRANSACTION 01: STANDARD SETTLEMENT]")
+    print(json.dumps(tx1, indent=4))
+
+    print("\n[TRANSACTION 02: AUTO-CONVERSION PENALTY]")
+    print(json.dumps(tx2, indent=4))
+
+    # 6. Final Health Audit
+    print("\n[GLOBAL SYSTEM HEALTH AUDIT]")
+    print(json.dumps(mpos.get_system_health_report(), indent=4))
