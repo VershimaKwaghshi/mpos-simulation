@@ -3,201 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mPOS Settlement Engine</title>
+    <title>mPOS Engine | Institutional Terminal</title>
     <style>
         :root {
-            --bg: #020617;
-            --card: #0F172A;
+            --bg-deep: #020617;
+            --card-surface: #0F172A;
             --mpos-gold: #C9972B;
             --mpos-blue: #38BDF8;
-            --success: #10B981;
-            --text-dim: #94A3B8;
-            --border: #1E293B;
+            --success-green: #10B981;
+            --danger-red: #EF4444;
+            --border-ui: #1E293B;
+            --text-muted: #94A3B8;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-deep); color: #FFF; margin: 0; height: 100vh; overflow: hidden; }
         
-        .terminal-container { width: 100%; max-width: 600px; padding: 20px; }
-        .page { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .page.active { display: block; animation: slideUp 0.3s ease-out; }
+        .engine-layout { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* PERSISTENT ENGINE LOG */
+        .engine-sidebar { background: #010409; border-right: 1px solid var(--border-ui); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 25px; border-bottom: 1px solid var(--border-ui); font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--mpos-gold); }
+        .live-log { flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 11px; overflow-y: auto; color: var(--text-muted); }
+        .log-entry { margin-bottom: 10px; padding-left: 10px; border-left: 1px solid #334155; }
+        .log-entry.system { color: var(--mpos-blue); font-weight: bold; }
 
-        .tag { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--mpos-gold); letter-spacing: 1.5px; margin-bottom: 8px; }
-        h1 { font-size: 20px; margin: 0 0 16px 0; }
-        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-        .meta-item { background: #020617; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
-        .meta-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .meta-val { font-size: 14px; font-weight: 600; font-family: monospace; }
+        /* MAIN TERMINAL */
+        .terminal-viewport { position: relative; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #0F172A 0%, #020617 100%); }
+        .screen { display: none; width: 100%; max-width: 550px; padding: 40px; background: var(--card-surface); border-radius: 20px; border: 1px solid var(--border-ui); box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7); }
+        .screen.active { display: block; animation: screenFadeIn 0.5s ease; }
 
-        .status-box { border-left: 3px solid var(--mpos-blue); padding: 12px 16px; background: rgba(56, 189, 248, 0.05); margin-bottom: 24px; font-size: 14px; line-height: 1.5; color: var(--text-dim); }
-        .status-box b { color: white; }
+        @keyframes screenFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        .btn { width: 100%; background: var(--mpos-gold); color: #020617; border: none; padding: 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        .btn:hover { filter: brightness(1.1); }
+        /* COMPONENTS */
+        .tag { font-size: 10px; font-weight: 800; color: var(--mpos-gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+        h2 { font-size: 24px; margin-bottom: 20px; font-weight: 700; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
+        input, select { width: 100%; padding: 14px; background: #020617; border: 1px solid var(--border-ui); border-radius: 8px; color: #FFF; font-size: 15px; }
         
-        .progress-bar { height: 4px; background: var(--border); width: 100%; margin-bottom: 24px; border-radius: 2px; position: relative; }
-        .progress-fill { height: 100%; background: var(--mpos-gold); border-radius: 2px; transition: width 0.3s ease; }
+        .data-card { background: #020617; padding: 15px; border-radius: 10px; border: 1px solid var(--border-ui); margin-bottom: 12px; }
+        .data-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+        .data-val { font-family: monospace; font-size: 16px; font-weight: 600; color: var(--mpos-blue); }
+
+        .nav-btn { width: 100%; padding: 18px; background: var(--mpos-gold); color: #020617; border: none; border-radius: 10px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; margin-top: 20px; }
+        .nav-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
     </style>
 </head>
 <body>
 
-<div class="terminal-container">
-    <div class="progress-bar"><div id="progress" class="progress-fill" style="width: 9%"></div></div>
-
-    <div id="p1" class="page active">
-        <div class="tag">Screen 1 of 11</div>
-        <h1>System Overview</h1>
-        <div class="status-box">
-            mPOS is <b>backend settlement infrastructure</b> embedded in bank systems. Near-instant cross-border value movement via coordinated local payouts.
+<div class="engine-layout">
+    <div class="engine-sidebar">
+        <div class="sidebar-header">mPOS CORE ENGINE v3.0</div>
+        <div id="engineLog" class="live-log">
+            <div class="log-entry system">SYSTEM READY. AWAITING BANK INSTRUCTION...</div>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Origin</div><div class="meta-val">Stanbic IBTC 🇳🇬</div></div>
-            <div class="meta-item"><div class="meta-label">Destination</div><div class="meta-val">Barclays UK 🇬🇧</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(2)">Start Engine Demonstration</button>
     </div>
 
-    <div id="p2" class="page">
-        <div class="tag">Screen 2 of 11</div>
-        <h1>Bank API Request</h1>
-        <div class="status-box">
-            <b>POST /mpos/v1/transfer/initiate</b><br>
-            Stanbic IBTC sends authenticated customer instruction to the mPOS engine.
+    <main class="terminal-viewport">
+        
+        <div id="step1" class="screen active">
+            <div class="tag">Stage 01: Bank Instruction</div>
+            <h2>Initiate Settlement</h2>
+            <div class="input-group">
+                <label>Originating Institution</label>
+                <input type="text" value="Stanbic IBTC Nigeria" readonly>
+            </div>
+            <div class="input-group">
+                <label>Transaction Amount (NGN)</label>
+                <input type="number" id="ngnInput" placeholder="e.g. 205000" value="205000">
+            </div>
+            <button class="nav-btn" onclick="startEngine()">Authorize API Request →</button>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Auth Token</div><div class="meta-val" style="color:var(--success)">VALID ✓</div></div>
-            <div class="meta-item"><div class="meta-label">Amount</div><div class="meta-val">₦205,000</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(3)">Process Request</button>
-    </div>
 
-    <div id="p3" class="page">
-        <div class="tag">Screen 3 of 11</div>
-        <h1>Tier Verification</h1>
-        <div class="status-box">
-            Limits are enforced at the engine level to manage corridor balance and regulatory compliance.
+        <div id="step2" class="screen">
+            <div class="tag">Stage 02: Engine Execution</div>
+            <h2>Processing Validation</h2>
+            <div class="data-card">
+                <div class="data-label">AML Screening</div>
+                <div class="data-val" style="color: var(--success-green);">PASSED ✓</div>
+            </div>
+            <div class="data-card">
+                <div class="data-label">Random Agent Assignment</div>
+                <div id="agentDisplay" class="data-val">Scanning...</div>
+            </div>
+            <button class="nav-btn" onclick="showStep(3)">Execute Ledger Flip →</button>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Customer Tier</div><div class="meta-val">TIER 2</div></div>
-            <div class="meta-item"><div class="meta-label">Daily Limit</div><div class="meta-val">£2,000</div></div>
-            <div class="meta-item"><div class="meta-label">This Transaction</div><div class="meta-val">£100.00</div></div>
-            <div class="meta-item"><div class="meta-label">Status</div><div class="meta-val" style="color:var(--success)">PASSED ✓</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(4)">Validate Transaction</button>
-    </div>
 
-    <div id="p4" class="page">
-        <div class="tag">Screen 4 of 11</div>
-        <h1>Engine Validation</h1>
-        <div class="status-box">
-            AML screening complete. FX rate locked at <b>1 GBP = 2,050 NGN</b>. Unique reference generated.
+        <div id="step3" class="screen">
+            <div class="tag">Stage 03: Settlement Layer</div>
+            <h2>Ledger Balanced</h2>
+            <div class="data-card">
+                <div class="data-label">Nigeria Agent NG-004 (Sender)</div>
+                <div id="ngLedger" class="data-val" style="color: var(--danger-red);">Debiting Ledger...</div>
+            </div>
+            <div class="data-card">
+                <div class="data-label">UK Agent UK-007 (Recipient)</div>
+                <div id="ukLedger" class="data-val" style="color: var(--success-green);">Crediting Ledger...</div>
+            </div>
+            <button class="nav-btn" onclick="showStep(4)">Finalize Cycle →</button>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Reference</div><div class="meta-val">MPOS-2026-00847</div></div>
-            <div class="meta-item"><div class="meta-label">Net to Recipient</div><div class="meta-val">£98.80</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(5)">Assign Sender Agent</button>
-    </div>
 
-    <div id="p5" class="page">
-        <div class="tag">Screen 5 of 11</div>
-        <h1>Sender Assignment</h1>
-        <div class="status-box">
-            <b>Random Assignment Active.</b> Engine identifies Nigeria agent with sufficient international ledger balance.
+        <div id="step4" class="screen" style="text-align: center;">
+            <div class="tag">Final State</div>
+            <h2 style="color: var(--success-green);">Settlement Finalized</h2>
+            <p style="color: var(--text-muted);">The corridor is balanced. 0.2% liquidity buffer has been reserved in the destination bank account.</p>
+            <div class="data-card">
+                <div class="data-label">mPOS Master Reference</div>
+                <div id="finalRef" class="data-val">MPOS-REF-XXXXX</div>
+            </div>
+            <button class="nav-btn" onclick="location.reload()">Start New Session</button>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Assigned Agent</div><div class="meta-val">NG-004 (Lagos)</div></div>
-            <div class="meta-item"><div class="meta-label">Ledger Age</div><div class="meta-val">1 Day</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(6)">Execute Ledger Entry</button>
-    </div>
 
-    <div id="p6" class="page">
-        <div class="tag">Screen 6 of 11</div>
-        <h1>Sender Entry</h1>
-        <div class="status-box">
-            Agent NG-004 credited with <b>₦205,000 Fiat</b>. International Ledger debited <b>-₦205,000</b>.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">New Savings Bal</div><div class="meta-val">₦48,705,000</div></div>
-            <div class="meta-item"><div class="meta-label">New Ledger Bal</div><div class="meta-val">₦24,295,000</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(7)">Assign Recipient Agent</button>
-    </div>
-
-    <div id="p7" class="page">
-        <div class="tag">Screen 7 of 11</div>
-        <h1>Recipient Assignment</h1>
-        <div class="status-box">
-            Engine identifies UK agent with sufficient <b>GBP Fiat</b> liquidity for local payout.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Assigned Agent</div><div class="meta-val">UK-007 (London)</div></div>
-            <div class="meta-item"><div class="meta-label">Fiat Available</div><div class="meta-val">£285,000</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(8)">Execute Local Payout</button>
-    </div>
-
-    <div id="p8" class="page">
-        <div class="tag">Screen 8 of 11</div>
-        <h1>Payout & Credit</h1>
-        <div class="status-box">
-            Agent UK-007 pays <b>£98.80</b> locally via Faster Payments. International Ledger credited <b>+£98.80</b>.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Recipient</div><div class="meta-val">John Adeyemi</div></div>
-            <div class="meta-item"><div class="meta-label">Status</div><div class="meta-val" style="color:var(--success)">CONFIRMED ✓</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(9)">View Fee Distribution</button>
-    </div>
-
-    <div id="p9" class="page">
-        <div class="tag">Screen 9 of 11</div>
-        <h1>Fee Breakdown</h1>
-        <div class="status-box">
-            <b>0.2% (£0.24)</b> reserved in Nigeria partner bank as liquidity buffer. 1% shared among agents, banks, and platform.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">Buffer</div><div class="meta-val">0.2%</div></div>
-            <div class="meta-item"><div class="meta-label">Platform/Agent</div><div class="meta-val">1.0%</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(10)">View Ledger Conversion</button>
-    </div>
-
-    <div id="p10" class="page">
-        <div class="tag">Screen 10 of 11</div>
-        <h1>Ledger Lifecycle</h1>
-        <div class="status-box">
-            Agents must convert ledger back to local fiat within <b>72 hours</b> to keep the corridor active.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">UK-007 Exchange</div><div class="meta-val">UK-013</div></div>
-            <div class="meta-item"><div class="meta-label">Cycle Status</div><div class="meta-val">CONVERTING</div></div>
-        </div>
-        <button class="btn" onclick="nextPage(11)">Finalize Settlement</button>
-    </div>
-
-    <div id="p11" class="page">
-        <div class="tag">Settlement Complete</div>
-        <h1 style="color:var(--success)">MPOS-2026-00847 SETTLED</h1>
-        <div class="status-box">
-            No money crossed the border. Local agents paid locally. International ledger balanced the obligation.
-        </div>
-        <div class="meta-grid">
-            <div class="meta-item"><div class="meta-label">mPOS Settlement</div><div class="meta-val" style="color:var(--success)">INSTANT</div></div>
-            <div class="meta-item"><div class="meta-label">SWIFT Alternative</div><div class="meta-val">3-5 DAYS</div></div>
-        </div>
-        <button class="btn" onclick="location.reload()">Restart Engine</button>
-    </div>
+    </main>
 </div>
 
 <script>
-    function nextPage(n) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p' + n).classList.add('active');
-        document.getElementById('progress').style.width = (n/11 * 100) + '%';
+    let amountNGN = 0;
+    const rate = 2050; // 1 GBP = 2050 NGN
+
+    function log(msg, isSystem = false) {
+        const logDiv = document.getElementById('engineLog');
+        const entry = document.createElement('div');
+        entry.className = isSystem ? 'log-entry system' : 'log-entry';
+        entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logDiv.prepend(entry);
     }
+
+    function showStep(n) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+    }
+
+    function startEngine() {
+        amountNGN = document.getElementById('ngnInput').value;
+        const gbp = (amountNGN / rate).toFixed(2);
+        
+        log(`API_CALL: Received instruction for ₦${amountNGN}`, true);
+        log(`FX_LOCK: Rate secured at 1 GBP = ₦${rate}`);
+        
+        // Populate Step 2 data
+        setTimeout(() => {
+            document.getElementById('agentDisplay').innerText = "Assigned: NG-004 & UK-007";
+            log("AGENT_SCAN: Randomization complete. Partners locked.");
+        }, 800);
+
+        // Populate Step 3 data
+        const buffer = (gbp * 0.002).toFixed(2);
+        const netToRecipient = (gbp - (gbp * 0.012)).toFixed(2); // 1.2% total fee
+
+        document.getElementById('ngLedger').innerText = `- ₦${amountNGN} (International Ledger)`;
+        document.getElementById('ukLedger').innerText = `+ £${netToRecipient} (International Ledger)`;
+        
+        log(`FEE_CALC: 0.2% (£${buffer}) reserved for Buffer.`);
+        showStep(2);
+    }
+
+    // Generate unique ref on load
+    document.getElementById('finalRef').innerText = "MPOS-" + Math.random().toString(36).substr(2, 9).toUpperCase();
 </script>
 
 </body>
