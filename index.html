@@ -3,124 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mPOS Core Settlement Simulation</title>
+    <title>mPOS Institutional Terminal</title>
     <style>
+        :root {
+            --bank-blue: #0052FF;
+            --bank-dark: #0A192F;
+            --bank-gray: #F4F7F9;
+            --success: #05CD99;
+            --error: #EE5D50;
+            --border: #E2E8F0;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: #c9d1d9; padding: 20px; }
-        
-        /* CONTAINER STYLE */
-        .mpos-container { max-width: 600px; margin: 50px auto; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        /* HEADER */
-        .header { border-bottom: 1px solid #30363d; margin-bottom: 25px; padding-bottom: 10px; text-align: center; }
-        .header h1 { color: #58a6ff; font-size: 24px; }
-        .header p { font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bank-gray); color: var(--bank-dark); padding: 0; }
 
-        /* FORM ELEMENTS */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; color: #8b949e; }
-        input { width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 16px; }
-        button { width: 100%; padding: 15px; background-color: #238636; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background-color: #2ea043; }
+        /* BANKING HEADER */
+        .top-nav { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .logo { font-weight: 800; font-size: 20px; color: var(--bank-blue); letter-spacing: -0.5px; }
+        .status-pill { font-size: 12px; font-weight: 600; background: #EBF4FF; color: var(--bank-blue); padding: 4px 12px; border-radius: 20px; }
 
-        /* RESULTS AREA */
-        #ledger-output { margin-top: 25px; background: #0d1117; border-radius: 6px; padding: 20px; border-left: 4px solid #58a6ff; display: none; }
-        .manifest-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-family: 'Courier New', Courier, monospace; font-size: 14px; }
-        .highlight { color: #58a6ff; font-weight: bold; }
-        .penalty { color: #f85149; }
-        .standard { color: #3fb950; }
+        /* DASHBOARD LAYOUT */
+        .dashboard { max-width: 1000px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+
+        .card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-title { font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* TRANSACTION TERMINAL */
+        .input-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; background: #F8FAFC; transition: border 0.2s; }
+        input:focus { outline: none; border-color: var(--bank-blue); background: white; }
+
+        button { width: 100%; padding: 16px; background: var(--bank-blue); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+
+        /* LIQUIDITY METRICS */
+        .metric { margin-bottom: 20px; }
+        .metric-val { font-size: 24px; font-weight: 700; color: var(--bank-dark); }
+        .metric-label { font-size: 13px; color: #64748B; }
+
+        /* LEDGER OVERLAY */
+        #ledger-result { display: none; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .total-row { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--bank-gray); font-weight: 800; font-size: 18px; }
+
+        .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+        .tag-std { background: #DCFCE7; color: #166534; }
+        .tag-pen { background: #FEE2E2; color: #991B1B; }
+
     </style>
 </head>
 <body>
 
-    <div class="mpos-container">
-        <div class="header">
-            <h1>mPOS Engine v1.1</h1>
-            <p>Institutional Settlement Simulation</p>
-        </div>
+    <nav class="top-nav">
+        <div class="logo">mPOS <span style="font-weight: 300; color: #64748B;">Institutional</span></div>
+        <div class="status-pill">● System Operational</div>
+    </nav>
 
-        <div class="input-group">
-            <label>Digital Passport (DP-ID)</label>
-            <input type="text" id="dp_id" placeholder="e.g. DP-8822-X">
-        </div>
+    <div class="dashboard">
+        <section class="card">
+            <h2 class="card-title">Settlement Terminal</h2>
+            
+            <label class="input-label">Digital Passport (DP-ID)</label>
+            <input type="text" id="dp" placeholder="Enter DP Reference">
 
-        <div class="input-group">
-            <label>Principal Amount (GBP)</label>
-            <input type="number" id="principal" placeholder="1000">
-        </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label class="input-label">Principal (GBP)</label>
+                    <input type="number" id="amt" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="input-label">Exchange Rate</label>
+                    <input type="number" id="rate" value="1850.00">
+                </div>
+            </div>
 
-        <div class="input-group">
-            <label>FX Rate (To Destination)</label>
-            <input type="number" id="rate" placeholder="1850">
-        </div>
+            <label class="input-label">Settlement Window (Days Elapsed)</label>
+            <input type="number" id="days" value="1">
 
-        <div class="input-group">
-            <label>Settlement Delay (Days)</label>
-            <input type="number" id="delay" placeholder="1">
-        </div>
+            <button onclick="process()">Execute Settlement</button>
 
-        <button onclick="executeSettlement()">Execute Settlement</button>
+            <div id="ledger-result">
+                <div class="receipt-row">
+                    <span>Liquidity Status</span>
+                    <span id="res-status" class="tag"></span>
+                </div>
+                <div class="receipt-row">
+                    <span>Gross Settlement</span>
+                    <span id="res-gross"></span>
+                </div>
+                <div class="receipt-row">
+                    <span>Stability Buffer (0.2%)</span>
+                    <span id="res-buffer" style="color: var(--error);"></span>
+                </div>
+                <div class="receipt-row">
+                    <span>Velocity Fee</span>
+                    <span id="res-fee"></span>
+                </div>
+                <div class="total-row">
+                    <span>Net Disbursement</span>
+                    <span id="res-net" style="color: var(--bank-blue);"></span>
+                </div>
+            </div>
+        </section>
 
-        <div id="ledger-output">
-            <div style="text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 12px; color: #8b949e;">SETTLEMENT MANIFEST</div>
-            <div class="manifest-line"><span>Status:</span> <span id="out-status"></span></div>
-            <div class="manifest-line"><span>Gross Value:</span> <span id="out-gross"></span></div>
-            <div class="manifest-line"><span>0.2% Buffer:</span> <span id="out-buffer" style="color: #f85149;"></span></div>
-            <div class="manifest-line"><span>Service Fee:</span> <span id="out-fee"></span></div>
-            <hr style="border: 0; border-top: 1px dashed #30363d; margin: 10px 0;">
-            <div class="manifest-line"><span style="font-weight: bold;">Final Payout:</span> <span id="out-payout" class="highlight"></span></div>
-        </div>
+        <aside>
+            <div class="card" style="margin-bottom: 24px;">
+                <h2 class="card-title">Collective Liquidity</h2>
+                <div class="metric">
+                    <div class="metric-label">Stabilization Pool (NGN)</div>
+                    <div class="metric-val" id="pool-val">0.00</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Network Revenue</div>
+                    <div class="metric-val" id="rev-val" style="font-size: 18px; color: var(--success);">0.00</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Audit Requirements</h2>
+                <p style="font-size: 13px; color: #64748B;">All transactions are processed through the mPOS decentralized ledger. The 72-hour velocity rule is enforced automatically.</p>
+            </div>
+        </aside>
     </div>
 
     <script>
-        function executeSettlement() {
-            // Inputs
-            const dp = document.getElementById('dp_id').value;
-            const principal = parseFloat(document.getElementById('principal').value);
+        let pool = 0;
+        let revenue = 0;
+
+        function process() {
+            const principal = parseFloat(document.getElementById('amt').value);
             const rate = parseFloat(document.getElementById('rate').value);
-            const delay = parseInt(document.getElementById('delay').value);
+            const days = parseInt(document.getElementById('days').value);
 
-            if (!dp || isNaN(principal) || isNaN(rate)) {
-                alert("Identity and Financial parameters required.");
-                return;
-            }
+            if (!principal || !rate) return;
 
-            // mPOS Mathematical Constraints
-            const BUFFER_RATE = 0.002;  // 0.2%
-            const FEE_STANDARD = 0.0005; // 0.05%
-            const FEE_PENALTY = 0.0008;  // 0.08%
-
-            // Logic Execution
+            // Engine Logic
             const gross = principal * rate;
-            const buffer = gross * BUFFER_RATE;
-            const net_before_fee = gross - buffer;
-
-            // 72-Hour Rule Enforcement
-            let fee_applied;
-            let status_text;
-            let status_class;
-
-            if (delay <= 3) {
-                fee_applied = net_before_fee * FEE_STANDARD;
-                status_text = "STANDARD_VELOCITY";
-                status_class = "standard";
-            } else {
-                fee_applied = net_before_fee * FEE_PENALTY;
-                status_text = "STAGNANT_AUTO_PENALTY";
-                status_class = "penalty";
-            }
-
-            const final_payout = net_before_fee - fee_applied;
-
-            // UI Update
-            document.getElementById('out-status').innerText = status_text;
-            document.getElementById('out-status').className = 'manifest-line ' + status_class;
-            document.getElementById('out-gross').innerText = gross.toLocaleString() + " NGN";
-            document.getElementById('out-buffer').innerText = "-" + buffer.toLocaleString() + " NGN";
-            document.getElementById('out-fee').innerText = "-" + fee_applied.toLocaleString() + " NGN";
-            document.getElementById('out-payout').innerText = final_payout.toLocaleString() + " NGN";
+            const buffer = gross * 0.002;
+            const netBeforeFee = gross - buffer;
             
-            document.getElementById('ledger-output').style.display = 'block';
+            const isPenalty = days > 3;
+            const feeRate = isPenalty ? 0.0008 : 0.0005;
+            const fee = netBeforeFee * feeRate;
+            const final = netBeforeFee - fee;
+
+            // Update Totals
+            pool += buffer;
+            revenue += fee;
+
+            // UI Rendering
+            document.getElementById('res-gross').innerText = gross.toLocaleString() + " NGN";
+            document.getElementById('res-buffer').innerText = "-" + buffer.toLocaleString();
+            document.getElementById('res-fee').innerText = "-" + fee.toLocaleString();
+            document.getElementById('res-net').innerText = final.toLocaleString() + " NGN";
+            
+            const status = document.getElementById('res-status');
+            status.innerText = isPenalty ? "AUTO-CONVERSION" : "STANDARD";
+            status.className = isPenalty ? "tag tag-pen" : "tag tag-std";
+
+            document.getElementById('pool-val').innerText = pool.toLocaleString();
+            document.getElementById('rev-val').innerText = revenue.toLocaleString();
+            document.getElementById('ledger-result').style.display = 'block';
         }
     </script>
 </body>
