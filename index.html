@@ -1,126 +1,127 @@
-import uuid
-import random
-import json
-from datetime import datetime
-
-class MPOSEngine:
-    """
-    mPOS (Mobile Point of Service) Core Settlement Engine
-    Developed for: Institutional Cross-Border Liquidity Management
-    """
-
-    def __init__(self):
-        # 1. CORE OPERATIONAL CONSTANTS
-        self.CORRIDOR_STABILITY_BUFFER = 0.002  # 0.2% retention
-        self.FEE_STANDARD = 0.0005              # 0.05% (< 72 Hours)
-        self.FEE_PENALTY = 0.0008               # 0.08% (> 72 Hours)
-        self.DP_REGISTRATION_FEE = 1.29         # USD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mPOS Core Settlement Simulation</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: #c9d1d9; padding: 20px; }
         
-        # 2. INTERNAL SYSTEM LEDGERS
-        self.passport_registry = {}             # Digital Passport storage
-        self.collective_buffer_pool = 0.0       # Stabilization fund
-        self.system_revenue = 0.0               # Collected service fees
-        self.audit_log = []                     # Immutable history
-
-    # --- IDENTITY MANAGEMENT ---
-    def create_digital_passport(self, entity_name, region):
-        """Generates a Digital Passport (DP) for network participation."""
-        dp_id = f"DP-{uuid.uuid4().hex[:12].upper()}"
-        self.passport_registry[dp_id] = {
-            "name": entity_name,
-            "region": region,
-            "status": "ACTIVE",
-            "verified_at": datetime.now().isoformat()
-        }
-        self.system_revenue += self.DP_REGISTRATION_FEE
-        return dp_id
-
-    # --- SETTLEMENT OPERATIONS ---
-    def _get_random_agent(self):
-        """Ensures neutral routing via randomized agent assignment."""
-        agents = ["AGENT-LAGOS-01", "AGENT-LONDON-05", "AGENT-NEWYORK-09"]
-        return random.choice(agents)
-
-    def run_settlement(self, dp_id, principal, rate, hours_elapsed=24):
-        """
-        Executes the mPOS settlement logic.
-        Calculates buffer retention and velocity fees based on time elapsed.
-        """
-        if dp_id not in self.passport_registry:
-            return {"error": "Unauthorized Access: Invalid Digital Passport"}
-
-        # Step 1: Gross Value & Buffer Allocation
-        gross_value = principal * rate
-        buffer_amount = gross_value * self.CORRIDOR_STABILITY_BUFFER
-        self.collective_buffer_pool += buffer_amount
+        /* CONTAINER STYLE */
+        .mpos-container { max-width: 600px; margin: 50px auto; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        # Step 2: Net Balance & Velocity Fee Check
-        net_liquid = gross_value - buffer_amount
-        
-        # The 72-Hour Rule (Velocity Enforcement)
-        if hours_elapsed <= 72:
-            fee_rate = self.FEE_STANDARD
-            tag = "HIGH_VELOCITY_STANDARD"
-        else:
-            fee_rate = self.FEE_PENALTY
-            tag = "AUTO_CONVERSION_PENALTY"
+        /* HEADER */
+        .header { border-bottom: 1px solid #30363d; margin-bottom: 25px; padding-bottom: 10px; text-align: center; }
+        .header h1 { color: #58a6ff; font-size: 24px; }
+        .header p { font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* FORM ELEMENTS */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #8b949e; }
+        input { width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 16px; }
+        button { width: 100%; padding: 15px; background-color: #238636; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #2ea043; }
+
+        /* RESULTS AREA */
+        #ledger-output { margin-top: 25px; background: #0d1117; border-radius: 6px; padding: 20px; border-left: 4px solid #58a6ff; display: none; }
+        .manifest-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-family: 'Courier New', Courier, monospace; font-size: 14px; }
+        .highlight { color: #58a6ff; font-weight: bold; }
+        .penalty { color: #f85149; }
+        .standard { color: #3fb950; }
+    </style>
+</head>
+<body>
+
+    <div class="mpos-container">
+        <div class="header">
+            <h1>mPOS Engine v1.1</h1>
+            <p>Institutional Settlement Simulation</p>
+        </div>
+
+        <div class="input-group">
+            <label>Digital Passport (DP-ID)</label>
+            <input type="text" id="dp_id" placeholder="e.g. DP-8822-X">
+        </div>
+
+        <div class="input-group">
+            <label>Principal Amount (GBP)</label>
+            <input type="number" id="principal" placeholder="1000">
+        </div>
+
+        <div class="input-group">
+            <label>FX Rate (To Destination)</label>
+            <input type="number" id="rate" placeholder="1850">
+        </div>
+
+        <div class="input-group">
+            <label>Settlement Delay (Days)</label>
+            <input type="number" id="delay" placeholder="1">
+        </div>
+
+        <button onclick="executeSettlement()">Execute Settlement</button>
+
+        <div id="ledger-output">
+            <div style="text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 12px; color: #8b949e;">SETTLEMENT MANIFEST</div>
+            <div class="manifest-line"><span>Status:</span> <span id="out-status"></span></div>
+            <div class="manifest-line"><span>Gross Value:</span> <span id="out-gross"></span></div>
+            <div class="manifest-line"><span>0.2% Buffer:</span> <span id="out-buffer" style="color: #f85149;"></span></div>
+            <div class="manifest-line"><span>Service Fee:</span> <span id="out-fee"></span></div>
+            <hr style="border: 0; border-top: 1px dashed #30363d; margin: 10px 0;">
+            <div class="manifest-line"><span style="font-weight: bold;">Final Payout:</span> <span id="out-payout" class="highlight"></span></div>
+        </div>
+    </div>
+
+    <script>
+        function executeSettlement() {
+            // Inputs
+            const dp = document.getElementById('dp_id').value;
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            const delay = parseInt(document.getElementById('delay').value);
+
+            if (!dp || isNaN(principal) || isNaN(rate)) {
+                alert("Identity and Financial parameters required.");
+                return;
+            }
+
+            // mPOS Mathematical Constraints
+            const BUFFER_RATE = 0.002;  // 0.2%
+            const FEE_STANDARD = 0.0005; // 0.05%
+            const FEE_PENALTY = 0.0008;  // 0.08%
+
+            // Logic Execution
+            const gross = principal * rate;
+            const buffer = gross * BUFFER_RATE;
+            const net_before_fee = gross - buffer;
+
+            // 72-Hour Rule Enforcement
+            let fee_applied;
+            let status_text;
+            let status_class;
+
+            if (delay <= 3) {
+                fee_applied = net_before_fee * FEE_STANDARD;
+                status_text = "STANDARD_VELOCITY";
+                status_class = "standard";
+            } else {
+                fee_applied = net_before_fee * FEE_PENALTY;
+                status_text = "STAGNANT_AUTO_PENALTY";
+                status_class = "penalty";
+            }
+
+            const final_payout = net_before_fee - fee_applied;
+
+            // UI Update
+            document.getElementById('out-status').innerText = status_text;
+            document.getElementById('out-status').className = 'manifest-line ' + status_class;
+            document.getElementById('out-gross').innerText = gross.toLocaleString() + " NGN";
+            document.getElementById('out-buffer').innerText = "-" + buffer.toLocaleString() + " NGN";
+            document.getElementById('out-fee').innerText = "-" + fee_applied.toLocaleString() + " NGN";
+            document.getElementById('out-payout').innerText = final_payout.toLocaleString() + " NGN";
             
-        service_fee = net_liquid * fee_rate
-        self.system_revenue += service_fee
-        
-        # Step 3: Final Disbursement Calculation
-        payout = net_liquid - service_fee
-        
-        # Step 4: Record Transaction
-        tx_id = f"MPOS-TX-{uuid.uuid4().hex[:16].upper()}"
-        manifest = {
-            "tx_id": tx_id,
-            "timestamp": datetime.now().isoformat(),
-            "origin_dp": dp_id,
-            "assigned_agent": self._get_random_agent(),
-            "financials": {
-                "principal": principal,
-                "fx_rate": rate,
-                "buffer_retained": round(buffer_amount, 2),
-                "service_fee": round(service_fee, 2),
-                "net_payout": round(payout, 2)
-            },
-            "status": tag
+            document.getElementById('ledger-output').style.display = 'block';
         }
-        
-        self.audit_log.append(manifest)
-        return manifest
-
-    def generate_report(self):
-        """Returns the real-time health of the mPOS infrastructure."""
-        return {
-            "total_volume_processed": len(self.audit_log),
-            "collective_buffer_reserve": round(self.collective_buffer_pool, 2),
-            "total_system_revenue": round(self.system_revenue, 2),
-            "network_status": "OPERATIONAL"
-        }
-
-# --- EXECUTION BLOCK ---
-if __name__ == "__main__":
-    # Initialize the Engine
-    mpos = MPOSEngine()
-
-    # Create a Digital Passport
-    bank_id = mpos.create_digital_passport("Central Corridor Bank", "UK-NG")
-
-    # Transaction 1: Standard Velocity (Processed in 24 hours)
-    # £10,000 at 1,850 NGN rate
-    t1 = mpos.run_settlement(bank_id, 10000, 1850, hours_elapsed=24)
-    
-    # Transaction 2: Delayed Settlement (Processed in 96 hours)
-    t2 = mpos.run_settlement(bank_id, 5000, 1850, hours_elapsed=96)
-
-    # Output Results
-    print("\n--- TRANSACTION 1: SUCCESS ---")
-    print(json.dumps(t1, indent=4))
-    
-    print("\n--- TRANSACTION 2: AUTO-CONVERSION ---")
-    print(json.dumps(t2, indent=4))
-
-    print("\n--- SYSTEM HEALTH SUMMARY ---")
-    print(json.dumps(mpos.generate_report(), indent=4))
+    </script>
+</body>
+</html>
