@@ -3,213 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mPOS Core Engine — Institutional Terminal</title>
+    <title>mPOS Institutional Terminal</title>
     <style>
         :root {
-            --bg-dark: #0A192F;
-            --card-dark: #112240;
+            --bg-dark: #050A15;
+            --card-dark: #0F172A;
             --mpos-gold: #C9972B;
-            --mpos-blue: #58a6ff;
-            --text-main: #ccd6f6;
-            --text-dim: #8892b0;
-            --success: #64ffda;
-            --danger: #f7567c;
+            --mpos-blue: #38BDF8;
+            --text-main: #E2E8F0;
+            --text-dim: #94A3B8;
+            --success: #10B981;
+            --border: #1E293B;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; }
 
-        /* HEADER */
-        .top-nav { background: #020c1b; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #233554; }
-        .logo { font-weight: 800; color: var(--mpos-gold); font-size: 22px; letter-spacing: 2px; }
-        .engine-status { font-size: 11px; color: var(--success); font-weight: 700; background: rgba(100, 255, 218, 0.1); padding: 5px 15px; border-radius: 20px; }
+        /* TERMINAL LAYOUT */
+        .app-container { display: flex; height: 100vh; }
+        
+        /* SIDEBAR ENGINE LOG (PERSISTENT CONTEXT) */
+        .sidebar { width: 350px; background: #020617; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 11px; font-weight: 800; color: var(--mpos-gold); letter-spacing: 2px; border-bottom: 1px solid var(--border); }
+        .engine-manifest { flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 12px; overflow-y: auto; }
+        .manifest-line { margin-bottom: 12px; padding-left: 10px; border-left: 2px solid var(--border); }
+        .manifest-line.active { border-color: var(--mpos-blue); color: var(--mpos-blue); }
 
-        /* MAIN LAYOUT */
-        .grid-container { max-width: 1200px; margin: 30px auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; padding: 0 20px; }
+        /* MAIN CONTENT AREA */
+        .main-content { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .page { display: none; width: 100%; max-width: 500px; padding: 40px; background: var(--card-dark); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .page.active { display: block; animation: fadeIn 0.4s ease-out; }
 
-        .card { background: var(--card-dark); border-radius: 12px; padding: 25px; border: 1px solid #233554; margin-bottom: 25px; }
-        .card-header { border-bottom: 1px solid #233554; margin-bottom: 20px; padding-bottom: 10px; font-weight: 700; color: var(--mpos-gold); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* INPUTS */
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; background: #020c1b; border: 1px solid #233554; border-radius: 6px; color: white; font-size: 15px; }
-        input:focus { border-color: var(--mpos-blue); outline: none; }
+        /* UI COMPONENTS */
+        h2 { font-size: 18px; margin-bottom: 8px; color: white; }
+        p { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
+        
+        .input-box { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--mpos-gold); text-transform: uppercase; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 14px; background: #020617; border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 15px; }
+        
+        .btn { width: 100%; padding: 16px; background: var(--mpos-gold); color: #050A15; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 13px; }
+        .btn:hover { filter: brightness(1.1); }
 
-        button { width: 100%; padding: 15px; background: var(--mpos-gold); color: #020c1b; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* ENGINE VISUALIZER */
-        .engine-log { font-family: 'Consolas', monospace; font-size: 12px; background: #020c1b; padding: 15px; border-radius: 8px; max-height: 250px; overflow-y: auto; }
-        .log-entry { margin-bottom: 8px; border-left: 2px solid var(--text-dim); padding-left: 10px; }
-        .log-entry.active { border-color: var(--success); color: var(--success); }
-
-        /* AGENT GRID */
-        .agent-list { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .agent-card { background: #172a45; padding: 15px; border-radius: 8px; font-size: 12px; }
-        .agent-val { font-weight: 700; color: var(--success); font-size: 16px; }
-        .agent-label { color: var(--text-dim); margin-top: 5px; display: block; }
-
-        /* ANIMATION */
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .processing { animation: pulse 1s infinite; color: var(--mpos-gold); font-weight: bold; }
+        .agent-pill { background: #1E293B; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--mpos-blue); }
+        .agent-val { font-family: monospace; color: var(--success); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<nav class="top-nav">
-    <div class="logo">mPOS ENGINE v2.0</div>
-    <div class="engine-status">● SETTLEMENT LAYER ONLINE</div>
-</nav>
+<div class="app-container">
+    <div class="sidebar">
+        <div class="sidebar-header">INTERNAL ENGINE LOG</div>
+        <div id="manifest" class="engine-manifest">
+            <div class="manifest-line">SYSTEM INITIALIZED. AWAITING BANK DATA.</div>
+        </div>
+    </div>
 
-<div class="grid-container">
-    
-    <section>
-        <div class="card">
-            <div class="card-header">Initiate International Transfer</div>
-            <div class="input-group">
-                <label>Bank Authorization Token</label>
-                <input type="text" id="bank_token" value="BANK-AUTH-9921-X" disabled>
+    <div class="main-content">
+        
+        <div id="page1" class="page active">
+            <h2>Bank Authentication</h2>
+            <p>The origin bank initiates the request by passing the Digital Passport (DP) and locked liquidity token.</p>
+            <div class="input-box">
+                <label>Digital Passport (DP)</label>
+                <input type="text" id="dp_id" value="DP-NIG-7721-STANBIC" readonly>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="input-group">
-                    <label>Amount (GBP)</label>
-                    <input type="number" id="send_amt" placeholder="1000">
-                </div>
-                <div class="input-group">
-                    <label>Target Corridor</label>
-                    <select>
-                        <option>UK → Nigeria (NGN)</option>
-                    </select>
-                </div>
+            <div class="input-box">
+                <label>Locked Principal (GBP)</label>
+                <input type="number" id="principal" placeholder="Enter amount e.g. 500">
             </div>
-            <button onclick="runEngine()">Process mPOS Settlement</button>
+            <button class="btn" onclick="goToPage(2, 'BANK_AUTH_SUCCESS: Received £' + document.getElementById('principal').value + ' for DP-NIG-7721')">Authorize & Next →</button>
         </div>
 
-        <div class="card">
-            <div class="card-header">Live Engine Logic Manifest</div>
-            <div id="engine_log" class="engine-log">
-                <div class="log-entry">Waiting for bank instruction...</div>
+        <div id="page2" class="page">
+            <h2>Agent Randomization</h2>
+            <p>mPOS engine scans accredited local facilitators. No party chooses their partner.</p>
+            <div class="agent-pill">
+                <label>Sender Facilitator (NGN)</label>
+                <div id="fac_id">NG-LQD-09 (Lagos)</div>
             </div>
-        </div>
-    </section>
-
-    <aside>
-        <div class="card">
-            <div class="card-header">Nigeria Liquidity Facilitators</div>
-            <div class="agent-list" id="ng_agents">
-                </div>
+            <div class="agent-pill">
+                <label>Recipient Facilitator (GBP)</label>
+                <div id="rec_id">UK-LQD-14 (London)</div>
+            </div>
+            <button class="btn" onclick="processAssignment()">Lock Pairs & Route →</button>
         </div>
 
-        <div class="card">
-            <div class="card-header">UK Recipient Agents</div>
-            <div class="agent-list" id="uk_agents">
-                </div>
+        <div id="page3" class="page">
+            <h2>Digital Ledger Settlement</h2>
+            <p>Simultaneously crediting fiat and deducting international balance across both corridors.</p>
+            <div class="agent-pill" style="border-color: var(--success);">
+                <label>Nigeria Facilitator Ledger</label>
+                <div>Fiat: <span class="agent-val" id="ng_fiat">+ ₦0</span></div>
+                <div>Intl Balance: <span style="color: var(--danger);">- £0</span></div>
+            </div>
+            <div class="agent-pill" style="border-color: var(--mpos-gold);">
+                <label>UK Recipient Ledger (Includes 0.2% Buffer)</label>
+                <div>Fiat: <span style="color: var(--danger);" id="uk_fiat">- £0</span></div>
+                <div>Intl Balance: <span class="agent-val" id="uk_ledger">+ £0</span></div>
+            </div>
+            <button class="btn" onclick="goToPage(4, 'LEDGER_BALANCED: Obligations updated digitally.')">Finalize Settlement →</button>
         </div>
 
-        <div class="card">
-            <div class="card-header">Stability Control (3-Day Rule)</div>
-            <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 15px;">
-                Holdings exceeding 72 hours trigger automatic corridor balancing.
-            </p>
-            <button style="background: var(--danger); color: white;" onclick="simulateStagnation()">Force Auto-Conversion</button>
+        <div id="page4" class="page">
+            <h2 style="color: var(--success);">Settlement Finalized</h2>
+            <p>The transaction is recorded. The recipient bank is now clear to credit the end user.</p>
+            <div class="input-box">
+                <label>mPOS Reference</label>
+                <input type="text" id="final_ref" readonly>
+            </div>
+            <div class="agent-pill">
+                <label>Network Health</label>
+                <div style="color: var(--success);">Stable — 0.2% Buffer Retained</div>
+            </div>
+            <button class="btn" onclick="location.reload()">New Transaction</button>
         </div>
-    </aside>
+
+    </div>
 </div>
 
 <script>
-    // System State
-    const state = {
-        ngAgents: [
-            { id: "NG-FAC-01", fiat: 5000000, ledger: 15000 },
-            { id: "NG-FAC-02", fiat: 8200000, ledger: 4000 }
-        ],
-        ukAgents: [
-            { id: "UK-REC-01", fiat: 20000, ledger: 0 },
-            { id: "UK-REC-02", fiat: 15000, ledger: 0 }
-        ],
-        rate: 1850
-    };
+    let currentPrincipal = 0;
+    const rate = 1850;
 
-    function renderAgents() {
-        const ngHtml = state.ngAgents.map(a => `
-            <div class="agent-card">
-                <span style="color: var(--mpos-gold)">${a.id}</span>
-                <span class="agent-label">Local Fiat: <span class="agent-val">₦${a.fiat.toLocaleString()}</span></span>
-                <span class="agent-label">Intl Balance: <span style="color: var(--mpos-blue)">£${a.ledger.toLocaleString()}</span></span>
-            </div>
-        `).join('');
-
-        const ukHtml = state.ukAgents.map(a => `
-            <div class="agent-card">
-                <span style="color: var(--mpos-gold)">${a.id}</span>
-                <span class="agent-label">Local Fiat: <span class="agent-val">£${a.fiat.toLocaleString()}</span></span>
-                <span class="agent-label">Intl Balance: <span style="color: var(--mpos-blue)">£${a.ledger.toLocaleString()}</span></span>
-            </div>
-        `).join('');
-
-        document.getElementById('ng_agents').innerHTML = ngHtml;
-        document.getElementById('uk_agents').innerHTML = ukHtml;
-    }
-
-    function addLog(msg, isProcessing = false) {
-        const log = document.getElementById('engine_log');
+    function addManifest(msg) {
+        const manifest = document.getElementById('manifest');
         const div = document.createElement('div');
-        div.className = 'log-entry active';
-        if (isProcessing) div.classList.add('processing');
+        div.className = 'manifest-line active';
         div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        log.prepend(div);
+        manifest.prepend(div);
     }
 
-    async function runEngine() {
-        const amt = parseFloat(document.getElementById('send_amt').value);
-        if (!amt) return alert("Enter amount");
-
-        addLog("BANK_AUTH_SUCCESS: Received instruction for £" + amt);
-        await new Promise(r => setTimeout(r, 800));
-
-        addLog("SCANNING: Locating accredited facilitators in Nigeria corridor...");
-        await new Promise(r => setTimeout(r, 800));
-
-        // Logic: Pick random agents
-        const ngIdx = Math.floor(Math.random() * 2);
-        const ukIdx = Math.floor(Math.random() * 2);
-        const facilitator = state.ngAgents[ngIdx];
-        const recipient = state.ukAgents[ukIdx];
-
-        addLog(`MATCHED: ${facilitator.id} (NG) matched with ${recipient.id} (UK)`);
-        await new Promise(r => setTimeout(r, 800));
-
-        // Execution
-        const ngnVal = amt * state.rate;
-        facilitator.fiat += ngnVal;
-        facilitator.ledger -= amt;
-
-        recipient.fiat -= amt;
-        recipient.ledger += (amt * 0.998); // 0.2% buffer deducted
-
-        addLog(`ROUTING: Crediting NGN ${ngnVal.toLocaleString()} to ${facilitator.id}`);
-        addLog(`ROUTING: Deducting £${amt} from ${recipient.id} to satisfy payout`);
+    function goToPage(pageNum, logMsg) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page' + pageNum).classList.add('active');
+        if (logMsg) addManifest(logMsg);
         
-        await new Promise(r => setTimeout(r, 800));
-        addLog("SETTLEMENT_COMPLETE: International Ledger Adjusted.");
-        renderAgents();
+        if (pageNum === 2) {
+            currentPrincipal = parseFloat(document.getElementById('principal').value);
+            addManifest("SCANNING: Identifying best-fit agents for Nigeria/UK corridor...");
+        }
     }
 
-    function simulateStagnation() {
-        addLog("WATCHDOG_ALERT: Agent NG-FAC-01 holding ledger balance > 72hrs");
-        setTimeout(() => {
-            const agent = state.ngAgents[0];
-            const fee = agent.ledger * 0.0008;
-            addLog(`AUTO_CONVERT: Executed at 0.08% penalty. Stability restored.`);
-            agent.fiat += (agent.ledger * state.rate) - (fee * state.rate);
-            agent.ledger = 0;
-            renderAgents();
-        }, 1000);
+    function processAssignment() {
+        addManifest("PAIR_LOCKED: Agents NG-LQD-09 and UK-LQD-14 assigned.");
+        
+        // Calculate Ledger Logic
+        const ngnVal = currentPrincipal * rate;
+        const buffer = currentPrincipal * 0.002;
+        const netIntl = currentPrincipal - buffer;
+
+        document.getElementById('ng_fiat').innerText = "+ ₦" + ngnVal.toLocaleString();
+        document.getElementById('uk_fiat').innerText = "- £" + currentPrincipal.toLocaleString();
+        document.getElementById('uk_ledger').innerText = "+ £" + netIntl.toLocaleString();
+        
+        goToPage(3, "ROUTING: Simultaneous Fiat/Ledger exchange initiated.");
     }
 
-    // Initial Load
-    renderAgents();
+    // Generate random ref for final page
+    document.getElementById('final_ref').value = "mPOS-" + Math.random().toString(36).substr(2, 9).toUpperCase();
 </script>
+
 </body>
 </html>
