@@ -1,135 +1,126 @@
-
-mPOS (Mobile Point of Service) - Core Settlement Engine Prototype
-Version: 1.1.0
-Author: Vershima Kwaghshi
-
-DESCRIPTION:
-This engine simulates the cross-border settlement infrastructure for mPOS. 
-It integrates the following architectural pillars:
-1. Digital Passport (DP) Identity Verification.
-2. Real-Time FX Rate Locking.
-3. The 0.2% Collective Stability Buffer.
-4. The 72-Hour Velocity Rule (Escalating Fees).
-5. Randomized Agent Routing to prevent collusion.
-"""
-
 import uuid
 import random
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class MPOSEngine:
-    def __init__(self):
-        # Operational Constants
-        self.CORRIDOR_STABILITY_BUFFER = 0.002  # 0.2%
-        self.VELOCITY_FEE_STANDARD = 0.0005     # 0.05% (< 3 Days)
-        self.VELOCITY_FEE_PENALTY = 0.0008      # 0.08% (> 3 Days)
-        self.ONBOARDING_FEE = 1.29              # USD
-        
-        # System State
-        self.passport_registry = {}
-        self.buffer_reserve_pool = 0.0
-        self.total_revenue = 0.0
-        self.ledger = []
+    """
+    mPOS (Mobile Point of Service) Core Settlement Engine
+    Developed for: Institutional Cross-Border Liquidity Management
+    """
 
-    # --- IDENTITY LAYER ---
-    def issue_digital_passport(self, entity_name, region):
-        """Creates a Digital Passport (DP) required for any engine activity."""
+    def __init__(self):
+        # 1. CORE OPERATIONAL CONSTANTS
+        self.CORRIDOR_STABILITY_BUFFER = 0.002  # 0.2% retention
+        self.FEE_STANDARD = 0.0005              # 0.05% (< 72 Hours)
+        self.FEE_PENALTY = 0.0008               # 0.08% (> 72 Hours)
+        self.DP_REGISTRATION_FEE = 1.29         # USD
+        
+        # 2. INTERNAL SYSTEM LEDGERS
+        self.passport_registry = {}             # Digital Passport storage
+        self.collective_buffer_pool = 0.0       # Stabilization fund
+        self.system_revenue = 0.0               # Collected service fees
+        self.audit_log = []                     # Immutable history
+
+    # --- IDENTITY MANAGEMENT ---
+    def create_digital_passport(self, entity_name, region):
+        """Generates a Digital Passport (DP) for network participation."""
         dp_id = f"DP-{uuid.uuid4().hex[:12].upper()}"
         self.passport_registry[dp_id] = {
-            "entity": entity_name,
+            "name": entity_name,
             "region": region,
-            "reputation": 100,
-            "active": True
+            "status": "ACTIVE",
+            "verified_at": datetime.now().isoformat()
         }
-        self.total_revenue += self.ONBOARDING_FEE
+        self.system_revenue += self.DP_REGISTRATION_FEE
         return dp_id
 
-    def _verify_passport(self, dp_id):
-        return dp_id in self.passport_registry and self.passport_registry[dp_id]["active"]
-
-    # --- SETTLEMENT LAYER ---
-    def _get_routing_agent(self):
-        """Randomizes the payout agent to enforce neutrality."""
-        agents = ["AG-NORTH-TX", "AG-SOUTH-TX", "AG-EAST-TX", "AG-WEST-TX"]
+    # --- SETTLEMENT OPERATIONS ---
+    def _get_random_agent(self):
+        """Ensures neutral routing via randomized agent assignment."""
+        agents = ["AGENT-LAGOS-01", "AGENT-LONDON-05", "AGENT-NEWYORK-09"]
         return random.choice(agents)
 
-    def process_transaction(self, dp_id, amount_source, rate, delay_days=1):
+    def run_settlement(self, dp_id, principal, rate, hours_elapsed=24):
         """
-        The Core mPOS Settlement Logic.
-        Converts source principal to destination ledger balance with buffer retention.
+        Executes the mPOS settlement logic.
+        Calculates buffer retention and velocity fees based on time elapsed.
         """
-        if not self._verify_passport(dp_id):
-            return {"status": "REJECTED", "reason": "INVALID_IDENTITY"}
+        if dp_id not in self.passport_registry:
+            return {"error": "Unauthorized Access: Invalid Digital Passport"}
 
-        # Step 1: Gross Value & Buffer Retention
-        gross_dest = amount_source * rate
-        buffer_amount = gross_dest * self.CORRIDOR_STABILITY_BUFFER
-        self.buffer_reserve_pool += buffer_amount
+        # Step 1: Gross Value & Buffer Allocation
+        gross_value = principal * rate
+        buffer_amount = gross_value * self.CORRIDOR_STABILITY_BUFFER
+        self.collective_buffer_pool += buffer_amount
         
-        # Step 2: Velocity Fee Assessment (The 72-Hour Rule)
-        net_balance = gross_dest - buffer_amount
-        if delay_days <= 3:
-            fee_rate = self.VELOCITY_FEE_STANDARD
-            logic = "STANDARD_SETTLEMENT"
+        # Step 2: Net Balance & Velocity Fee Check
+        net_liquid = gross_value - buffer_amount
+        
+        # The 72-Hour Rule (Velocity Enforcement)
+        if hours_elapsed <= 72:
+            fee_rate = self.FEE_STANDARD
+            tag = "HIGH_VELOCITY_STANDARD"
         else:
-            fee_rate = self.VELOCITY_FEE_PENALTY
-            logic = "STAGNATION_AUTO_CONVERSION"
+            fee_rate = self.FEE_PENALTY
+            tag = "AUTO_CONVERSION_PENALTY"
             
-        fee_amount = net_balance * fee_rate
-        self.total_revenue += fee_amount
+        service_fee = net_liquid * fee_rate
+        self.system_revenue += service_fee
         
-        # Step 3: Final Payout and Ledger Commit
-        final_payout = net_balance - fee_amount
-        tx_id = f"MPOS-{uuid.uuid4().hex[:14].upper()}"
+        # Step 3: Final Disbursement Calculation
+        payout = net_liquid - service_fee
         
-        record = {
+        # Step 4: Record Transaction
+        tx_id = f"MPOS-TX-{uuid.uuid4().hex[:16].upper()}"
+        manifest = {
             "tx_id": tx_id,
             "timestamp": datetime.now().isoformat(),
             "origin_dp": dp_id,
-            "payout_agent": self._get_routing_agent(),
-            "metrics": {
-                "source_amount": amount_source,
+            "assigned_agent": self._get_random_agent(),
+            "financials": {
+                "principal": principal,
                 "fx_rate": rate,
-                "gross_dest": round(gross_dest, 2),
                 "buffer_retained": round(buffer_amount, 2),
-                "service_fee": round(fee_amount, 2),
-                "net_payout": round(final_payout, 2)
+                "service_fee": round(service_fee, 2),
+                "net_payout": round(payout, 2)
             },
-            "logic": logic
+            "status": tag
         }
         
-        self.ledger.append(record)
-        return record
+        self.audit_log.append(manifest)
+        return manifest
 
-    # --- MONITORING LAYER ---
-    def get_infrastructure_stats(self):
-        """Returns the current state of the mPOS corridor."""
+    def generate_report(self):
+        """Returns the real-time health of the mPOS infrastructure."""
         return {
-            "active_passports": len(self.passport_registry),
-            "collective_buffer_reserve": round(self.buffer_reserve_pool, 2),
-            "engine_total_revenue": round(self.total_revenue, 2),
-            "transaction_count": len(self.ledger)
+            "total_volume_processed": len(self.audit_log),
+            "collective_buffer_reserve": round(self.collective_buffer_pool, 2),
+            "total_system_revenue": round(self.system_revenue, 2),
+            "network_status": "OPERATIONAL"
         }
 
-# --- EXAMPLE USAGE ---
+# --- EXECUTION BLOCK ---
 if __name__ == "__main__":
-    # Initialize Infrastructure
+    # Initialize the Engine
     mpos = MPOSEngine()
 
-    # 1. Onboard Participating Bank
-    bank_dp = mpos.issue_digital_passport("Global Corridor Bank", "NG-UK")
+    # Create a Digital Passport
+    bank_id = mpos.create_digital_passport("Central Corridor Bank", "UK-NG")
 
-    # 2. Simulate High-Volume Settlement (Processed Day 1)
-    # Principal: 10,000 GBP, Rate: 1,850
-    tx1 = mpos.process_transaction(bank_dp, 10000, 1850, delay_days=1)
+    # Transaction 1: Standard Velocity (Processed in 24 hours)
+    # £10,000 at 1,850 NGN rate
+    t1 = mpos.run_settlement(bank_id, 10000, 1850, hours_elapsed=24)
     
-    # 3. Simulate Delayed Settlement (Processed Day 5 - Penalty)
-    tx2 = mpos.process_transaction(bank_dp, 5000, 1850, delay_days=5)
+    # Transaction 2: Delayed Settlement (Processed in 96 hours)
+    t2 = mpos.run_settlement(bank_id, 5000, 1850, hours_elapsed=96)
 
-    # 4. Display Results
-    print("\n--- TRANSACTION LOG (SAMPLE) ---")
-    print(json.dumps(tx1, indent=4))
+    # Output Results
+    print("\n--- TRANSACTION 1: SUCCESS ---")
+    print(json.dumps(t1, indent=4))
     
-    print("\n--- INFRASTRUCTURE SUMMARY ---")
-    print(json.dumps(mpos.get_infrastructure_stats(), indent=4))
+    print("\n--- TRANSACTION 2: AUTO-CONVERSION ---")
+    print(json.dumps(t2, indent=4))
+
+    print("\n--- SYSTEM HEALTH SUMMARY ---")
+    print(json.dumps(mpos.generate_report(), indent=4))
