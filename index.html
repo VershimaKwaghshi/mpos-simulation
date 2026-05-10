@@ -21,26 +21,23 @@
         
         .engine-layout { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
 
-        /* PERSISTENT ENGINE LOG */
         .engine-sidebar { background: #010409; border-right: 1px solid var(--border-ui); display: flex; flex-direction: column; }
         .sidebar-header { padding: 25px; border-bottom: 1px solid var(--border-ui); font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--mpos-gold); }
         .live-log { flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 11px; overflow-y: auto; color: var(--text-muted); }
         .log-entry { margin-bottom: 10px; padding-left: 10px; border-left: 1px solid #334155; }
         .log-entry.system { color: var(--mpos-blue); font-weight: bold; }
 
-        /* MAIN TERMINAL */
         .terminal-viewport { position: relative; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #0F172A 0%, #020617 100%); }
         .screen { display: none; width: 100%; max-width: 550px; padding: 40px; background: var(--card-surface); border-radius: 20px; border: 1px solid var(--border-ui); box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7); }
         .screen.active { display: block; animation: screenFadeIn 0.5s ease; }
 
         @keyframes screenFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* COMPONENTS */
         .tag { font-size: 10px; font-weight: 800; color: var(--mpos-gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
         h2 { font-size: 24px; margin-bottom: 20px; font-weight: 700; }
         .input-group { margin-bottom: 20px; }
         label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
-        input, select { width: 100%; padding: 14px; background: #020617; border: 1px solid var(--border-ui); border-radius: 8px; color: #FFF; font-size: 15px; }
+        input { width: 100%; padding: 14px; background: #020617; border: 1px solid var(--border-ui); border-radius: 8px; color: #FFF; font-size: 15px; box-sizing: border-box; }
         
         .data-card { background: #020617; padding: 15px; border-radius: 10px; border: 1px solid var(--border-ui); margin-bottom: 12px; }
         .data-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
@@ -108,7 +105,7 @@
         <div id="step4" class="screen" style="text-align: center;">
             <div class="tag">Final State</div>
             <h2 style="color: var(--success-green);">Settlement Finalized</h2>
-            <p style="color: var(--text-muted);">The corridor is balanced. 0.2% liquidity buffer has been reserved in the destination bank account.</p>
+            <p style="color: var(--text-muted);">The corridor is balanced. 0.2% liquidity buffer has been reserved.</p>
             <div class="data-card">
                 <div class="data-label">mPOS Master Reference</div>
                 <div id="finalRef" class="data-val">MPOS-REF-XXXXX</div>
@@ -120,14 +117,6 @@
 </div>
 
 <script>
-    // INITIALIZE SUPABASE CLIENT (Using your public key)
-    const supabaseUrl = 'https://lfQ0fIh0w9PgPpwzFrkQnw.supabase.co';
-    const supabaseKey = 'sb_publishable_lfQ0fIh0w9PgPpwzFrkQnw_4Es52cJ9';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    let amountNGN = 0;
-    const rate = 2050; // 1 GBP = 2050 NGN
-
     function log(msg, isSystem = false) {
         const logDiv = document.getElementById('engineLog');
         const entry = document.createElement('div');
@@ -143,9 +132,9 @@
 
     async function startEngine() {
         const btn = document.getElementById('authBtn');
-        amountNGN = document.getElementById('ngnInput').value;
+        const amountNGN = document.getElementById('ngnInput').value;
+        const rate = 2050; 
         const gbp = (amountNGN / rate).toFixed(2);
-        const buffer = (gbp * 0.002).toFixed(2);
         const netToRecipient = (gbp - (gbp * 0.012)).toFixed(2);
 
         btn.disabled = true;
@@ -154,7 +143,7 @@
         log(`API_CALL: Routing instruction for ₦${amountNGN} to Netlify...`, true);
 
         try {
-            // CALLING THE NETLIFY SERVERLESS FUNCTION
+            // This calls your Netlify Function
             const response = await fetch('/.netlify/functions/settle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -164,20 +153,16 @@
             const result = await response.json();
 
             if (result.success) {
-                log(`DATABASE: Ledger successfully updated. Reference: ${result.ref}`, true);
+                log(`DATABASE: Ledger successfully updated.`, true);
                 
-                // UI UPDATES
                 document.getElementById('agentDisplay').innerText = "Assigned: NG-004 & UK-007";
-                document.getElementById('ngLedger').innerText = `- ₦${amountNGN} (International Ledger)`;
-                document.getElementById('ukLedger').innerText = `+ £${netToRecipient} (International Ledger)`;
+                document.getElementById('ngLedger').innerText = `- ₦${amountNGN}`;
+                document.getElementById('ukLedger').innerText = `+ £${netToRecipient}`;
                 document.getElementById('finalRef').innerText = result.ref;
 
-                log(`FX_LOCK: 1 GBP = ₦${rate}`);
-                log(`BUFFER: £${buffer} allocated to UK_DESTINATION_POOL.`);
-                
                 showStep(2);
             } else {
-                throw new Error("Engine Rejection");
+                throw new Error("Engine Error");
             }
         } catch (err) {
             log(`CRITICAL: Settlement failed. Connection Error.`, false);
