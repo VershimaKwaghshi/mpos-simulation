@@ -9,6 +9,7 @@ exports.handler = async (event) => {
   const gbpAmount = amountNGN / rate;
   const buffer = gbpAmount * 0.002; 
 
+  
   // Updates your Supabase Ledger
   const { error } = await supabase
     .from('agents')
